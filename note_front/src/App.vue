@@ -1,11 +1,18 @@
 <template>
-  <div>hello vue3</div>
+  <LoginVue />
 </template>
 <script>
+
+import LoginVue from "@/views/Login.vue";
+
 export default {
-  name: "App",
-  components: {},
-};
+  name: 'App',
+  components: {
+    LoginVue
+  }
+}
 </script>
 
-<style></style>
+<style>
+
+</style>

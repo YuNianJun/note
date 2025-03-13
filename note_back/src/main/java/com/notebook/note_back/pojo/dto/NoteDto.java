@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 public class NoteDto {
 
-    private Integer id;
     /**
      * 标题
      * */
