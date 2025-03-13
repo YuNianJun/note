@@ -1,27 +1,29 @@
 package com.notebook.note_back.service;
 
-import com.notebook.note_back.common.result.Result;
+import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.pojo.vo.NoteVo;
 
 import java.util.List;
 
 public interface NoteService {
-    Result<Integer> save(NoteVo note);
+    ResponseData save(NoteVo note);
 
-    Result<Integer> update(NoteVo note);
+    ResponseData update(NoteVo note);
 
-    Result<Object> pageQuery(NoteVo note);
+    ResponseData pageQuery(NoteVo note);
 
-    Result<Integer> delete(Integer id);
+    ResponseData delete(Integer id);
 
-    Result<Integer> updateStatus(Integer status,Integer id);
+    ResponseData updateStatus(Integer id);
 
-    Result<Integer> updateTop(Integer id);
+    ResponseData updateTop(Integer id);
 
-    Result<Object> getById(Integer id);
+    ResponseData getById(Integer id);
 
-    Result<Object> getByTags(String tags);
+    ResponseData getByTags(String tags);
 
-    Result<Integer> deleteIds(List<Integer> ids);
+    ResponseData deleteIds(List<Integer> ids);
+
+    ResponseData search(String title);
 
 }
