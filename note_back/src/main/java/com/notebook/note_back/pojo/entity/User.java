@@ -3,6 +3,7 @@ package com.notebook.note_back.pojo.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class User {
     private String password;
     // 密码盐
     private String salt;
+    @Email
     private String email;
     private String phone;
     private Integer status;
