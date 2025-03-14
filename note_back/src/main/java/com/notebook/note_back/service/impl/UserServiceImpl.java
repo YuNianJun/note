@@ -1,8 +1,11 @@
 package com.notebook.note_back.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
+import com.notebook.note_back.pojo.dto.NoteDto;
+import com.notebook.note_back.pojo.dto.UserDto;
 import com.notebook.note_back.pojo.entity.User;
 import com.notebook.note_back.mapper.UserMapper;
 import com.notebook.note_back.pojo.vo.UserVo;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
+
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,8 +76,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserVo> pageQuery(UserVo user) {
-        return null;
+    public IPage<UserDto> pageQuery(UserVo userVo) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", userVo.getUsername());
+
+        Page<User> userPage = userMapper.selectPage(new Page<>(userVo.getPage(), userVo.getSize()), queryWrapper);
+        return userPage.convert(user -> {
+            UserDto userDto = new UserDto();
+            BeanUtils.copyProperties(user, userDto);
+            return userDto;
+        });
     }
 
     @Override

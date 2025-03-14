@@ -1,7 +1,9 @@
 package com.notebook.note_back.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
+import com.notebook.note_back.pojo.dto.UserDto;
 import com.notebook.note_back.pojo.entity.User;
 import com.notebook.note_back.pojo.vo.UserVo;
 
@@ -9,7 +11,7 @@ public interface UserService {
     ResponseData register(User user);
     ResponseData login(UserVo user);
 
-    Page<UserVo> pageQuery(UserVo user);
+    IPage<UserDto> pageQuery(UserVo user);
 
     ResponseData save(UserVo user);
 

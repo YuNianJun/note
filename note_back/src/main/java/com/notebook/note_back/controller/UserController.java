@@ -1,7 +1,9 @@
 package com.notebook.note_back.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
+import com.notebook.note_back.pojo.dto.UserDto;
 import com.notebook.note_back.pojo.entity.User;
 import com.notebook.note_back.pojo.vo.UserVo;
 import com.notebook.note_back.service.UserService;
@@ -58,7 +60,7 @@ public class UserController {
      * 分页查询
      * */
     @PostMapping("/page")
-    public  Page<UserVo> page(UserVo user){
+    public IPage<UserDto> page(UserVo user){
         log.info("分页查询用户：{}",user);
         return userService.pageQuery(user);
     }

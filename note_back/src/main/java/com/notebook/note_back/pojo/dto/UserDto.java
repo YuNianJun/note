@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class UserDto {
+    private Integer page = 1;
+    private Integer size = 10;
     private Integer id;
     private String username;
     private String password;

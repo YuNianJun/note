@@ -1,9 +1,13 @@
 package com.notebook.note_back.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.mapper.NoteMapper;
+import com.notebook.note_back.pojo.dto.NoteDto;
+import com.notebook.note_back.pojo.dto.UserDto;
 import com.notebook.note_back.pojo.entity.Note;
+import com.notebook.note_back.pojo.entity.User;
 import com.notebook.note_back.pojo.vo.NoteVo;
 import com.notebook.note_back.service.NoteService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,10 +40,16 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseData pageQuery(NoteVo vo) {
-        Page<Note> page = new Page<>(vo.getPage(), vo.getSize());
-        return ResponseData.success(noteMapper.selectPage(page, null));
+    public IPage<NoteDto> pageQuery(NoteVo vo) {
+        QueryWrapper<Note> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("title", vo.getTitle());
 
+        Page<Note> notePage = noteMapper.selectPage(new Page<>(vo.getPage(), vo.getSize()), queryWrapper);
+        return notePage.convert(note -> {
+            NoteDto noteDto = new NoteDto();
+            BeanUtils.copyProperties(note, noteDto);
+            return noteDto;
+        });
     }
 
     @Override
