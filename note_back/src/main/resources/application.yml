@@ -15,10 +15,13 @@ spring:
 
 mybatis-plus:
   configuration:
-    map-underscore-to-camel-case: true # ??????
+    map-underscore-to-camel-case: true
   global-config:
     db-config:
-      id-type: auto # ????
+      id-type: auto
+      auto-fill-strategy:
+        enable: true
+
   mapper-locations: classpath*:mapper/*.xml
   type-aliases-package: com.notebook.note_back.model
 

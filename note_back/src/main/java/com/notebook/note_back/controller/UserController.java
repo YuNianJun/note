@@ -2,11 +2,14 @@ package com.notebook.note_back.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.notebook.note_back.common.config.LoginInterceptor;
 import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.pojo.dto.UserDto;
 import com.notebook.note_back.pojo.entity.User;
 import com.notebook.note_back.pojo.vo.UserVo;
 import com.notebook.note_back.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
+    private final LoginInterceptor loginInterceptor;
     /**
      * 注册
      * */
@@ -36,7 +39,6 @@ public class UserController {
     @PostMapping("/login")
     public ResponseData login(@RequestBody UserVo user) {
         log.info("用户登录：{}", user);
-        //TODO JWT校验
         return userService.login(user);
     }
 
@@ -44,7 +46,9 @@ public class UserController {
      * 退出
      */
     @PostMapping("/logout")
-    public ResponseData logout() {
+    public ResponseData logout(HttpServletRequest request, HttpServletResponse response) {
+        log.info("用户退出");
+        loginInterceptor.afterCompletion(request, response, null, null);
         return ResponseData.success();
     }
     /**
@@ -78,8 +82,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseData getById(@PathVariable Integer id){
         log.info("根据id查询用户信息：{}",id);
-        User user = userService.getById(id);
-        return ResponseData.success(user);
+        return userService.getById(id);
     }
     /**
      * 更新用户信息
@@ -90,10 +93,31 @@ public class UserController {
         return userService.update(user);
     }
 
-    @GetMapping("/exist/{username}")
-    public ResponseData isExist(@PathVariable String username){
-        log.info("查询用户名是否存在：{}",username);
-        return ResponseData.success(userService.isExist(username));
+    /**
+     * 更新用户密码
+     * */
+    @PostMapping("/updatePwd")
+    public ResponseData updatePwd(@RequestBody UserVo user){
+        log.info("更新用户密码：{}",user);
+        return userService.updatePwd(user);
+    }
+
+    /**
+     * 更新用户头像
+     * */
+    @PatchMapping("/updateAvatar")
+    public ResponseData updateAvatar(@RequestParam String avatarUrl){ //@RequestParam用于获取参数
+        userService.updateAvatar(avatarUrl);
+        return ResponseData.success();
+    }
+
+    /**
+     * 通过缓存中的用户名查询用户信息
+     * */
+    @GetMapping("/Info")
+    public ResponseData queryByName(){
+        log.info("通过用户名查询用户信息");
+        return userService.queryByName();
     }
 
 }

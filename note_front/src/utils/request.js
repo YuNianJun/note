@@ -1,21 +1,35 @@
-//定制请求的实例
+import axios from 'axios'
+import { ElMessage } from 'element-plus'
+import router from '@/router'
+import { useTokenStore } from '@/stores/token'
 
-//导入axios  npm install axios
-import axios from 'axios';
-//定义一个变量,记录公共的前缀  ,  baseURL
-const baseURL = '/api';
-const instance = axios.create({baseURL})
+const instance = axios.create({
+    baseURL: '/api'
+})
+export const initRequest = () => {
+// 请求拦截器
+    instance.interceptors.request.use((config) => {
+        const tokenStore = useTokenStore()
+        const token = tokenStore.token || localStorage.getItem('token')
+        if (token) {
+            config.headers.Authorization = token;
+        }
+        return config
+    })
 
-
-//添加响应拦截器
-instance.interceptors.response.use(
-    result=>{
-        return result.data;
-    },
-    err=>{
-        alert('服务异常');
-        return Promise.reject(err);//异步的状态转化成失败的状态
-    }
-)
-
-export default instance;
+// 响应拦截器
+    instance.interceptors.response.use(
+        (response) => response.data,
+        (error) => {
+            if (error.response?.status === 401) {
+                const tokenStore = useTokenStore()
+                tokenStore.clearToken()
+                localStorage.removeItem('token')
+                router.push('/login')
+                ElMessage.warning('会话已过期，请重新登录')
+            }
+            return Promise.reject(error)
+        }
+    )
+}
+export default instance

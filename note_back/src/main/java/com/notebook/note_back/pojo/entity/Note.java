@@ -1,8 +1,6 @@
 package com.notebook.note_back.pojo.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,13 +32,17 @@ public class Note {
      * */
     private String content;
 
+    /**
+     * 所属书架
+     * */
+    private Integer categoryId;
+
+    @TableField(value = "create_time",fill = FieldFill.INSERT)
     private String createTime;
 
+    @TableField(value = "update_time",fill = FieldFill.UPDATE)
     private String updateTime;
-    /**
-     * 所属用户id
-     * */
-    private Integer userId;
+
     /**
      * 是否置顶(1:置顶, 0:不置顶)
      * */
@@ -50,4 +52,5 @@ public class Note {
      * */
     private Integer status;
 
+    private Integer userId;
 }

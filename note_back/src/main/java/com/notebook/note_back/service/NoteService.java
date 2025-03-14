@@ -1,7 +1,6 @@
 package com.notebook.note_back.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.pojo.dto.NoteDto;
 import com.notebook.note_back.pojo.vo.NoteVo;

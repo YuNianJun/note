@@ -18,6 +18,10 @@ public interface NoteMapper extends BaseMapper<Note> {
     int updateTopById(Integer id);
 
     @Select("SELECT title FROM note WHERE tags LIKE CONCAT('%', #{tag}, '%')")
+
     List<String> selectTitlesByTag(@Param("tag") String tag);
+    @Select("SELECT name FROM note WHERE category = #{category}")
+    List<String> getNoteNamesByCategoryId(@Param("category") Integer category);
+
 
 }
