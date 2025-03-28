@@ -58,10 +58,10 @@ public class UserServiceImpl implements UserService {
         }
         User loginUser = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
 
-        if (!StringUtils.isEmpty(loginUser)) {
+        if (loginUser != null) {
             String saltPassword = loginUser.getPassword();
             boolean passwordFlag = SaltMD5Util.verifySaltPassword(password, saltPassword);
-            if (StringUtils.isEmpty(loginUser) || !passwordFlag) {
+            if (!passwordFlag) {
                 return ResponseData.error("登录失败,账号或者密码错误！");
             }
             if (loginUser.getStatus().equals(0)) {

@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -38,10 +41,10 @@ public class Note {
     private Integer categoryId;
 
     @TableField(value = "create_time",fill = FieldFill.INSERT)
-    private String createTime;
+    private LocalDateTime createTime;
 
     @TableField(value = "update_time",fill = FieldFill.UPDATE)
-    private String updateTime;
+    private LocalDateTime updateTime;
 
     /**
      * 是否置顶(1:置顶, 0:不置顶)

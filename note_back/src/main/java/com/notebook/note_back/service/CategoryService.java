@@ -10,7 +10,7 @@ public interface CategoryService {
 
     ResponseData update(CategoryVo vo);
 
-    IPage<CategoryDto> page(CategoryVo vo);
+    ResponseData page(CategoryVo vo);
 
     ResponseData delete(Integer id);
 

@@ -45,13 +45,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public IPage<CategoryDto> page(CategoryVo vo) {
+    public ResponseData page(CategoryVo vo) {
         Map<String, Object> map = ThreadLocalUtil.get();
         Integer userId = (Integer) map.get("id");
+
         // 1. 分页查询书架（核心分页逻辑）
         Page<Category> categoryPage = new Page<>(vo.getPage(), vo.getSize());
         QueryWrapper<Category> wrapper = new QueryWrapper<>();
-        // 构建查询条件
         if (vo.getId() != null) {
             wrapper.eq("id", vo.getId());
         }
@@ -59,10 +59,12 @@ public class CategoryServiceImpl implements CategoryService {
             wrapper.like("name", vo.getName());
         }
         wrapper.eq("user_id", userId);
+
         categoryMapper.selectPage(categoryPage, wrapper);
         // 2. 无数据直接返回空分页
         if (categoryPage.getRecords().isEmpty()) {
-            return new Page<>(vo.getPage(), vo.getSize(), 0);
+            Page<CategoryDto> emptyPage = new Page<>(vo.getPage(), vo.getSize(), 0);
+            return ResponseData.success(emptyPage);
         }
         // 3. 批量查询关联笔记
         List<Integer> categoryIds = categoryPage.getRecords().stream()
@@ -75,7 +77,6 @@ public class CategoryServiceImpl implements CategoryService {
             noteWrapper.eq("status", vo.getStatus());
         }
         List<Note> notes = noteMapper.selectList(noteWrapper);
-        // 按 categoryId 分组笔记
         Map<Integer, List<Note>> notesMap = notes.stream()
                 .collect(Collectors.groupingBy(Note::getCategoryId));
         // 4. 组装 DTO 分页结果
@@ -88,7 +89,8 @@ public class CategoryServiceImpl implements CategoryService {
         Page<CategoryDto> resultPage = new Page<>();
         BeanUtils.copyProperties(categoryPage, resultPage);
         resultPage.setRecords(dtoList);
-        return resultPage;
+
+        return ResponseData.success(resultPage);
     }
 
     @Override

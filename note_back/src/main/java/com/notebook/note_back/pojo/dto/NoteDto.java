@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 @Data
 public class NoteDto {
     private Integer page = 1;
@@ -29,10 +32,10 @@ public class NoteDto {
     private Integer categoryId;
 
     @TableField(value = "create_time",fill = FieldFill.INSERT)
-    private String createTime;
+    private LocalDateTime createTime;
 
     @TableField(value = "update_time",fill = FieldFill.UPDATE)
-    private String updateTime;
+    private LocalDateTime updateTime;
 
     /**
      * 是否置顶(1:置顶, 0:不置顶)

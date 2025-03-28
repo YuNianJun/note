@@ -22,7 +22,7 @@ public class User {
     private Integer id;
     @NotEmpty
     private String username;
-    @JsonIgnore
+
     private String password;
 
 

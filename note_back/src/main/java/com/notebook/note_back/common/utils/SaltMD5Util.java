@@ -2,12 +2,15 @@ package com.notebook.note_back.common.utils;
 
 import org.apache.commons.codec.binary.Hex;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Random;
 
 
 public class SaltMD5Util {
+    private static final SecureRandom random = new SecureRandom();
     public static String MD5(String input) {
         MessageDigest md5 = null;
         try {
@@ -37,25 +40,17 @@ public class SaltMD5Util {
     public static String generateSaltPassword(String password) {
         Random random = new Random();
         //生成一个16位的随机数，盐
-        StringBuilder stringBuilder = new StringBuilder(16);
-        stringBuilder.append(random.nextInt(99999999)).append(random.nextInt(99999999));
-        int len = stringBuilder.length();
-        if (len < 16) {
-            for (int i = 0; i < 16 - len; i++) {
-                stringBuilder.append("0");
-            }
-        }
-        // 生成盐
-        String salt = stringBuilder.toString();
+        byte[] saltBytes = new byte[8];
+        random.nextBytes(saltBytes);
+        String salt = Hex.encodeHexString(saltBytes);
         //将盐加到明文中，并生成新的MD5码
-        password = md5Hex(password + salt);
+        String saltedPassword = md5Hex(password + salt);
         //将盐混到新生成的MD5码中，方便的校验明文和秘文
         char[] cs = new char[48];
         for (int i = 0; i < 48; i += 3) {
-            cs[i] = password.charAt(i / 3 * 2);
-            char c = salt.charAt(i / 3);
-            cs[i + 1] = c;
-            cs[i + 2] = password.charAt(i / 3 * 2 + 1);
+            cs[i] = saltedPassword.charAt(i / 3 * 2);
+            cs[i + 1] = salt.charAt(i / 3);
+            cs[i + 2] = saltedPassword.charAt(i / 3 * 2 + 1);
         }
         return new String(cs);
     }
@@ -88,7 +83,7 @@ public class SaltMD5Util {
     private static String md5Hex(String src) {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
-            byte[] bs = md5.digest(src.getBytes());
+            byte[] bs = md5.digest(src.getBytes(StandardCharsets.UTF_8));
             return new String(new Hex().encode(bs));
         } catch (Exception e) {
             return null;
@@ -97,7 +92,7 @@ public class SaltMD5Util {
 
     public static void main(String args[]) {
         // 原密码
-        String password = "123456";
+        String password = "1234561";
         System.out.println("明文(原生)密码：" + password);
         // MD5加密后的密码
         String MD5Password = MD5(password);
