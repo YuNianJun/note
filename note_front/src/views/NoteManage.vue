@@ -11,21 +11,15 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 const categorys = ref([
   {
     id: 1,
-    name: "前端",
+    categoryName: "前端",
     user_id: 1,
     synopsis: "前端笔记简介"
   },
   {
     id: 2,
-    name: "后端",
+    categoryName: "后端",
     user_id: 1,
     synopsis: "后端笔记简介"
-  },
-  {
-    id: 3,
-    name: "运维",
-    user_id: 1,
-    synopsis: "运维笔记简介"
   },
 ])
 
@@ -103,13 +97,9 @@ import { articleListService } from '@/api/article.js'
 // 修改后的获取笔记方法
 const getArticles = async () => {
   try {
-    // 状态映射
-    const statusMap = {
-      '已发布': 1,
-      '草稿': 0
-    };
+    const statusMap = { '已发布': 1, '草稿': 0 };
 
-    // 构建请求参数
+    // 请求参数
     let params = {
       page: pageNum.value,
       size: pageSize.value,
@@ -117,32 +107,36 @@ const getArticles = async () => {
       status: state.value ? statusMap[state.value] : null
     };
 
-    // 发送请求
     let result = await articleListService(params);
-    console.log('完整响应:', result); // 调试关键
+    console.log('完整响应:', result);
 
-    // 处理响应数据
+    // 修改判断条件
     if (result.code === 200) {
-      // 展平嵌套的notes数组
-      articles.value = result.records.flatMap(category =>
+      // 正确访问data字段
+      const responseData = result.data;
+
+      // 展平数据（注意访问data.records）
+      articles.value = responseData.records.flatMap(category =>
           category.notes.map(note => ({
             ...note,
-            category_name: category.name // 添加分类名称
-          })))
+            categoryName: category.name,
+            createTime: note.createTime || '无', // 处理null值
+            updateTime: note.updateTime || '无'
+          }))
+      );
 
-      // 更新分页数据
-      total.value = result.total
-      pageSize.value = result.size
-      pageNum.value = result.current
-
+      // 更新分页数据（从data中获取）
+      total.value = responseData.total;
+      pageSize.value = responseData.size;
+      pageNum.value = responseData.current;
     } else {
-      throw new Error(result.message || '请求失败')
+      throw new Error(result.msg || '请求失败');
     }
   } catch (error) {
-    console.error('获取笔记失败:', error)
-    ElMessage.error(`获取失败: ${error.message}`)
+    console.error('获取笔记失败:', error);
+    ElMessage.error(`获取失败: ${error.message}`);
   }
-}
+};
 
 getArticles();
 
@@ -296,13 +290,16 @@ const formatStatus = (row) => {
     <!-- 搜索表单 -->
     <el-form inline>
       <el-form-item label="笔记分类：">
-        <el-select v-model="categoryId" placeholder="请选择">
+        <el-select
+            v-model="articleModel.categoryId"
+            placeholder="请选择分类"
+        >
           <el-option
-              v-for="c in categorys"
-              :key="c.id"
-              :label="c.name"
-              :value="c.id">
-          </el-option>
+              v-for="item in categorys"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="发布状态：">
@@ -319,7 +316,7 @@ const formatStatus = (row) => {
     <!-- 笔记列表 -->
     <el-table :data="articles" style="width: 100%">
       <el-table-column label="笔记标题" width="400" prop="title"></el-table-column>
-      <el-table-column label="分类" prop="category_name"></el-table-column>
+      <el-table-column label="分类" prop="categoryName"></el-table-column>
       <el-table-column label="创建时间" prop="createTime"></el-table-column>
       <el-table-column label="状态">
         <template #default="{row}">
@@ -348,9 +345,16 @@ const formatStatus = (row) => {
           <el-input v-model="articleModel.title" placeholder="请输入标题"></el-input>
         </el-form-item>
         <el-form-item label="笔记分类">
-          <el-select placeholder="请选择" v-model="articleModel.categoryId">
-            <el-option v-for="c in categorys" :key="c.id" :label="c.categoryName" :value="c.id">
-            </el-option>
+          <el-select
+              v-model="articleModel.categoryId"
+              placeholder="请选择分类"
+          >
+            <el-option
+                v-for="item in categorys"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="笔记封面">
