@@ -10,6 +10,9 @@ import router from './router'
 import {createPinia} from "pinia";
 import {createPersistedState} from "pinia-persistedstate-plugin";
 import {initRequest} from "@/utils/request";
+import mavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
+import 'highlight.js/styles/atom-one-dark.css'
 
 const app = createApp(App)
 const pinia = createPinia();
@@ -24,6 +27,7 @@ pinia.use(persist)
 app.use(pinia)
 initRequest()
 app.use(ElementPlus, { locale })
+app.use(mavonEditor)
 app.use(router)
 app.mount('#app')
 

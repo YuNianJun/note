@@ -24,11 +24,11 @@ public class NoteVo {
     /**
      * 笔记内容
      * */
-    private String body;
+    private String content;
     /**
      * 完整内容
      * */
-    private String content;
+    private String contentMd;
 
     private Integer categoryId;
 

@@ -5,8 +5,8 @@ import {
 } from '@element-plus/icons-vue'
 
 import {onMounted, ref} from 'vue'
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import 'mavon-editor/dist/css/index.css' // 基础样式（必须）
+import 'highlight.js/styles/github.css'
 //笔记分类数据模型
 const categorys = ref([
   {
@@ -33,22 +33,22 @@ const state=ref('')
 const articles = ref([
   {
     id: 1,
-    title: "springboot开发",  // 对应数据库字段 title
-    tags: "java",      // 对应数据库字段 tags
-    body: "springboot,从入门到入坟",  // 对应数据库字段 body
-    content: "string",  // 对应数据库字段 content
-    categoryId: 2,  // 对应数据库字段 categoryId
-    create_time: "2025-03-03 11:55:30",  // 对应数据库字段 create_time
-    update_time: "2025-03-03 11:55:30",  // 对应数据库字段 update_time
-    top: 0,  // 对应数据库字段 top
-    status: 1  // 对应数据库字段 status
+    title: "springboot开发",
+    tags: "java",
+    content: "springboot,从入门到入坟",
+    contentMd: "string",
+    categoryId: 2,
+    create_time: "2025-03-03 11:55:30",
+    update_time: "2025-03-03 11:55:30",
+    top: 0,
+    status: 1
   },
   {
     id: 2,
     title: "vue开发",
     tags: "vue",
-    body: "vue,从开始到跑路",
-    content: "string",
+    content: "vue,从开始到跑路",
+    contentMd: "string",
     categoryId: 1,
     create_time: "2025-03-03 11:55:30",
     update_time: "2025-03-03 11:55:30",
@@ -119,6 +119,7 @@ const getArticles = async () => {
       articles.value = responseData.records.flatMap(category =>
           category.notes.map(note => ({
             ...note,
+            content: note.content || '',
             categoryName: category.name,
             createTime: note.createTime || '无', // 处理null值
             updateTime: note.updateTime || '无'
@@ -196,7 +197,7 @@ const updateCategoryEcho = (row) => {
   articleModel.value.title = row.title;
   articleModel.value.categoryId = row.categoryId;
   articleModel.value.coverImg = row.coverImg;
-  articleModel.value.content = row.body;  // 将 body 映射为 content
+  articleModel.value.content = row.content;
   articleModel.value.tags = row.tags;
   articleModel.value.state = row.status;
   // 修改的时候必须传递分类的 id，所以扩展一个 id 属性
@@ -210,8 +211,8 @@ const updateManage = async () => {
   const requestData = {
     id: articleModel.value.id,
     title: articleModel.value.title,
-    tags: articleModel.value.tags || '',  // 补充 tags 字段
-    body: articleModel.value.content || '',  // 将 content 映射为 body
+    tags: articleModel.value.tags || '',
+    content: articleModel.value.content || '',
     status: articleModel.value.status,
     categoryId: articleModel.value.categoryId  // 补充 categoryId 字段
   };
@@ -243,6 +244,7 @@ import { ElMessageBox } from 'element-plus'
 //导入articleManageDeleteService函数
 import {articleManageDeleteService} from '@/api/article.js'
 import router from "@/router";
+import axios from "axios";
 //删除分类
 const deleteManage = (row) => {
   ElMessageBox.confirm(
@@ -276,6 +278,50 @@ if (!tokenStore.token) {
 const formatStatus = (row) => {
   return row.status === 1 ? '已发布' : '草稿';
 };
+const markdownOption = {
+  bold: true, // 粗体
+  italic: true, // 斜体
+  header: true, // 标题
+  underline: true, // 下划线
+  strikethrough: true, // 中划线
+  mark: true, // 标记
+  superscript: true, // 上角标
+  subscript: true, // 下角标
+  quote: true, // 引用
+  ol: true, // 有序列表
+  ul: true, // 无序列表
+  link: true, // 链接
+  imagelink: true, // 图片链接
+  code: true, // code
+  table: true, // 表格
+  fullscreen: true, // 全屏编辑
+  htmlcode: true, // 展示html源码
+  help: true, // 帮助
+}
+// 图片添加回调
+const handleImageAdd = (pos, file) => {
+  // 构造表单数据
+  const formData = new FormData()
+  formData.append('file', file)
+
+  // 调用上传接口（需自行实现）
+  uploadImage(formData).then(res => {
+    // 替换编辑器中的图片路径
+    const url = res.data.url // 假设接口返回图片URL
+    this.$refs.mdEditor.$img2Url(pos, url)
+  }).catch(error => {
+    console.error('图片上传失败:', error)
+  })
+}
+const uploadImage = async (formData) => {
+  return await axios.post('/api/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': tokenStore.token
+    }
+  })
+}
+
 </script>
 <template>
   <el-card class="page-container">
@@ -370,8 +416,15 @@ const formatStatus = (row) => {
           </el-upload>
         </el-form-item>
         <el-form-item label="笔记内容">
-          <div class="editor">
-            <quill-editor v-model="articleModel.content" ref="quillEditor" theme="snow" content-type="html"></quill-editor>
+          <div class="editor-container">
+            <mavon-editor
+                v-model="articleModel.content"
+                :subfield="true"
+            :defaultOpen="'edit'"
+            :toolbarsFlag="true"
+            :navigation="true"
+            style="height: 1080px"
+            />
           </div>
         </el-form-item>
         <el-form-item>
@@ -424,10 +477,61 @@ const formatStatus = (row) => {
     }
   }
 }
-.editor {
-  width: 100%;
-  :deep(.ql-editor) {
-    min-height: 200px;
+
+/* 容器样式 */
+.editor-container {
+  height: 100% !important; /* 关键修改 */
+  display: flex;
+  flex-direction: column;
+}
+/* 强制编辑器填满容器 */
+::v-deep .v-note-wrapper {
+  flex: 1;
+  min-height: 0 !important; /* 允许内容压缩 */
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+::v-deep .v-note-panel {
+  flex: 1;
+  min-height: 0 !important;
+}
+
+/* 移除默认内边距 */
+::v-deep .v-note-edit,
+::v-deep .v-note-preview {
+  padding: 0 !important;
+}
+/* 强制分栏 */
+::v-deep .v-note-wrapper.split-pane {
+  flex: 1;
+  height: 100% !important;
+}
+
+//::v-deep .v-note-panel {
+//  width: 50% !important;
+//  min-width: 50% !important;
+//  height: 100% !important;
+//}
+
+/* 编辑区样式 */
+::v-deep .v-note-edit {
+  padding-right: 10px;
+  border-right: 1px solid #eee;
+}
+
+/* 预览区样式 */
+::v-deep .v-note-preview {
+  padding-left: 10px;
+  overflow-y: auto;
+}
+@media (max-width: 768px) {
+  ::v-deep .v-note-wrapper.split-pane {
+    flex-direction: column !important;
+  }
+  ::v-deep .v-note-panel {
+    width: 100% !important;
+    height: 50vh !important;
   }
 }
 </style>
