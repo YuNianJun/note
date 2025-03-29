@@ -78,18 +78,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public IPage<UserDto> pageQuery(UserVo userVo) {
+    public ResponseData pageQuery(UserVo userVo) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if (userVo.getUsername() != null && !userVo.getUsername().isEmpty()) {
             queryWrapper.eq("username", userVo.getUsername());
         }
 
         Page<User> userPage = userMapper.selectPage(new Page<>(userVo.getPage(), userVo.getSize()), queryWrapper);
-        return userPage.convert(user -> {
+        return ResponseData.success(userPage.convert(user -> {
             UserDto userDto = new UserDto();
             BeanUtils.copyProperties(user, userDto);
             return userDto;
-        });
+        }));
     }
 
     @Override
@@ -107,7 +107,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseData updateStatus(Integer status, Integer id) {
+    public ResponseData updateStatus(Integer status) {
+        Map<String, Object> map = ThreadLocalUtil.get();
+        Integer id = (Integer) map.get("id");
         User user = User.builder()
                 .id(id)
                 .status(status)

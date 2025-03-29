@@ -64,17 +64,17 @@ public class UserController {
      * 分页查询
      * */
     @PostMapping("/page")
-    public IPage<UserDto> page(UserVo user){
+    public ResponseData page(UserVo user){
         log.info("分页查询用户：{}",user);
         return userService.pageQuery(user);
     }
     /**
      * 更改用户状态
      */
-    @PostMapping("/status/{status}")
-    public ResponseData updateStatus(@PathVariable Integer status , Integer id){
-        log.info("启用禁用用户账号：status={},id={}",status,id);
-        return userService.updateStatus(status,id);
+    @PostMapping("/status")
+    public ResponseData updateStatus(@RequestBody UserVo user){
+        log.info("启用禁用用户账号：status={}",user.getStatus());
+        return userService.updateStatus(user.getStatus());
     }
     /**
      * 根据id查询用户信息

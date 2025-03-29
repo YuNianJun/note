@@ -11,7 +11,7 @@ public interface UserService {
 
     ResponseData login(UserVo user);
 
-    IPage<UserDto> pageQuery(UserVo user);
+    ResponseData pageQuery(UserVo user);
 
     ResponseData save(UserVo user);
 
@@ -19,7 +19,7 @@ public interface UserService {
 
     ResponseData updatePwd(UserVo user);
 
-    ResponseData updateStatus(Integer status, Integer id);
+    ResponseData updateStatus(Integer status);
 
     ResponseData queryByName();
 

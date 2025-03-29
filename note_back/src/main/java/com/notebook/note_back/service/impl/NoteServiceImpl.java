@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class NoteServiceImpl implements NoteService {
 
     private final NoteMapper noteMapper;
-
     @Override
     public ResponseData save(NoteVo vo) {
         Map<String, Object> map = ThreadLocalUtil.get();
@@ -106,6 +105,8 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseData search(String title) {
-        return ResponseData.success(noteMapper.selectOne(new QueryWrapper<Note>().like("title", title)));
+        Map<String, Object> map = ThreadLocalUtil.get();
+        Integer userId = (Integer) map.get("id");
+        return ResponseData.success(noteMapper.selectOne(new QueryWrapper<Note>().like("title", title).eq("user_id", userId)));
     }
 }

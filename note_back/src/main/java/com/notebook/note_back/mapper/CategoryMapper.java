@@ -10,6 +10,5 @@ import java.util.List;
 
 @Mapper
 public interface CategoryMapper extends BaseMapper<Category> {
-    List<CategoryVo> selectCategoriesWithNotes(@Param("userId") Integer userId);
 
 }

@@ -35,3 +35,18 @@ export const userAvatarUpdateService=(avatarUrl)=>{
 export const userPasswordUpdateService = (params) => {
     return request.post('/user/updatePwd',params)
 }
+
+export const userPageService = () =>{
+    return request.post('user/page')
+}
+
+export const userUpdateStatusService = (status) => {
+    return request.post('/user/status',{status})
+}
+export const userDeleteService = (userId) => {
+    return request.post('/user/delete',{userId})
+}
+export const userAddService = (user) => {
+    return request.post('/user/save',user)
+}
+

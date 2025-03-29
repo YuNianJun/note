@@ -4,6 +4,7 @@ import {
   Promotion,
   UserFilled,
   User,
+  Avatar,
   Crop,
   EditPen,
   SwitchButton,
@@ -107,6 +108,12 @@ const handleCommand = (command) => {
             <Promotion />
           </el-icon>
           <span>笔记管理</span>
+        </el-menu-item>
+        <el-menu-item index="/user/manage">
+          <el-icon>
+            <Avatar />
+          </el-icon>
+          <span>用户管理</span>
         </el-menu-item>
         <el-sub-menu >
           <template #title>

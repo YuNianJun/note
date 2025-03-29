@@ -10,6 +10,7 @@ import NoteManageVue from '@/views/NoteManage.vue'
 import UserAvatarVue from '@/views/UserAvatar.vue'
 import UserInfoVue from '@/views/UserInfo.vue'
 import UserResetPasswordVue from '@/views/UserResetPassword.vue'
+import UserManageVue from "@/views/UserManage.vue";
 import {useTokenStore} from "@/stores/token";
 
 //定义路由关系
@@ -24,7 +25,8 @@ const routes = [
             { path: '/article/manage', component: NoteManageVue },
             { path: '/user/info', component: UserInfoVue },
             { path: '/user/avatar', component: UserAvatarVue },
-            { path: '/user/password', component: UserResetPasswordVue }
+            { path: '/user/password', component: UserResetPasswordVue },
+            { path: '/user/manage', component: UserManageVue}
         ]
     }
 ]
