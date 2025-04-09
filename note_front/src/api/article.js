@@ -1,12 +1,12 @@
 //导入请求工具文件
 import request from '@/utils/request.js'
 
-//文章分类列表查询
+//笔记分类列表查询
 export const categoryListService = () => {
     return request.get('/category/list');
 }
 
-//文章分类添加
+//笔记分类添加
 export const categoryAddService = (categoryModel) => {
     return request.post('/category/save',categoryModel)
 }
@@ -18,20 +18,33 @@ export const categoryDeleteService = (id) => {
 export const categoryUpdateService = (categoryModel) => {
     return request.post('/category/update',categoryModel)
 }
-//文章列表查询
+//笔记列表查询
 export const articleListService = (params) => {
     return request.post('/category/page', { params: params });
 }
-//添加文章
+//添加笔记
 export const articleAddService = (articleModel)=>{
     return request.post('/note/save',articleModel)
 }
-//修改文章
+//修改笔记
 export const articleManageUpdateService = (articleModel) => {
     return request.post('/note/update',articleModel)
 }
 
-//删除文章
-export const articleManageDeleteService = (id) => {
+//笔记放入回收站
+export const articleManageDeleteService = (ids) => {
+    return request.post('/note/putRecycleBin', { ids });
+}
+
+//回收站删除笔记
+export const recycleBinDeleteService = (id) => {
     return request.post('/note/delete/'+id)
+}
+//回收站查询笔记
+export const recycleBinListService = (params) => {
+    return request.post('/note/page', { params: params });
+}
+//回收站笔记恢复
+export const recycleBinRecoverService = (ids) => {
+    return request.post('/note/recover', { ids });
 }

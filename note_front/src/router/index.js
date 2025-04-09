@@ -12,6 +12,7 @@ import UserInfoVue from '@/views/UserInfo.vue'
 import UserResetPasswordVue from '@/views/UserResetPassword.vue'
 import UserManageVue from "@/views/UserManage.vue";
 import {useTokenStore} from "@/stores/token";
+import NoteRecycleBin from "@/views/NoteRecycleBin.vue";
 
 //定义路由关系
 const routes = [
@@ -23,6 +24,7 @@ const routes = [
         children: [
             { path: '/article/category', component: NoteCategoryVue },
             { path: '/article/manage', component: NoteManageVue },
+            { path: '/article/recycle', component: NoteRecycleBin },
             { path: '/user/info', component: UserInfoVue },
             { path: '/user/avatar', component: UserAvatarVue },
             { path: '/user/password', component: UserResetPasswordVue },

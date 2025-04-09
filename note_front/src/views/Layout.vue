@@ -8,6 +8,7 @@ import {
   Crop,
   EditPen,
   SwitchButton,
+  DeleteFilled,
   CaretBottom
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
@@ -108,6 +109,12 @@ const handleCommand = (command) => {
             <Promotion />
           </el-icon>
           <span>笔记管理</span>
+        </el-menu-item>
+        <el-menu-item index="/article/recycle">
+          <el-icon>
+            <DeleteFilled />
+          </el-icon>
+          <span>回收站</span>
         </el-menu-item>
         <el-menu-item index="/user/manage" v-if="userInfoStore.info.permission >= 1">
           <el-icon>

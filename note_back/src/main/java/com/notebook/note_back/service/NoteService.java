@@ -3,6 +3,9 @@ package com.notebook.note_back.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.pojo.dto.NoteDto;
+import com.notebook.note_back.pojo.entity.Comment;
+import com.notebook.note_back.pojo.entity.NoteShare;
+import com.notebook.note_back.pojo.vo.CommentVo;
 import com.notebook.note_back.pojo.vo.NoteVo;
 
 import java.util.List;
@@ -28,6 +31,14 @@ public interface NoteService {
 
     ResponseData search(String title);
 
-    ResponseData putRecycleBin(List<Integer> ids);
+    ResponseData putRecycleBin(NoteVo vo);
+
+    ResponseData saveComment(CommentVo comment);
+
+    ResponseData shareNote(NoteVo vo);
+
+    ResponseData viewSharedNote(NoteShare vo);
+
+    ResponseData removeRecycleBin(NoteVo vo);
 
 }

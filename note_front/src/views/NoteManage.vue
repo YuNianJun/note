@@ -245,10 +245,10 @@ import { ElMessageBox } from 'element-plus'
 import {articleManageDeleteService} from '@/api/article.js'
 import router from "@/router";
 import axios from "axios";
-//删除分类
+// 删除笔记
 const deleteManage = (row) => {
   ElMessageBox.confirm(
-      '确认是否删除该分类信息？',
+      '确认是否将该笔记移入回收站？',
       '提示',
       {
         confirmButtonText: '确认',
@@ -257,17 +257,21 @@ const deleteManage = (row) => {
       }
   )
       .then(async () => {
-        //用户点击了确认
-        let result = await articleManageDeleteService(row.id)
-        ElMessage.success(result.message?result.message:'删除成功')
-        //再次调用getAllCategory，获取所有笔记分类
-        await getArticles()
+        // 用户点击了确认
+        try {
+          await articleManageDeleteService([row.id]);
+          ElMessage.success('笔记已移入回收站');
+          // 重新获取笔记列表
+          await getArticles();
+        } catch (error) {
+          ElMessage.error('移入回收站失败: ' + error.message);
+        }
       })
       .catch(() => {
-        //用户点击了取消
+        // 用户点击了取消
         ElMessage({
           type: 'info',
-          message: '取消删除',
+          message: '取消移入回收站',
         })
       })
 }

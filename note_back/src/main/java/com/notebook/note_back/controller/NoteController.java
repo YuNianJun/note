@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.pojo.dto.NoteDto;
+import com.notebook.note_back.pojo.entity.Comment;
+import com.notebook.note_back.pojo.entity.NoteShare;
+import com.notebook.note_back.pojo.vo.CommentVo;
 import com.notebook.note_back.pojo.vo.NoteVo;
 import com.notebook.note_back.service.NoteService;
 import lombok.RequiredArgsConstructor;
@@ -42,19 +45,30 @@ public class NoteController {
         return noteService.update(note);
     }
 
+    /**
+     * 分页查询回收站中的笔记
+     * */
     @PostMapping("/page")
     public IPage<NoteDto> page(NoteVo note) {
-        log.info("分页查询笔记：{}",note);
+        log.info("分页查询回收站中的笔记：{}",note);
         return noteService.pageQuery(note);
     }
 
     /**
      * 笔记批量移入回收站
      * */
-    @GetMapping("/putRecycleBin")
-    public ResponseData putRecycleBin(@RequestBody List<Integer> ids) {
-        log.info("笔记批量移入回收站：{}",ids);
-        return noteService.putRecycleBin(ids);
+    @PostMapping("/putRecycleBin")
+    public ResponseData putRecycleBin(@RequestBody NoteVo vo) {
+        log.info("笔记批量移入回收站：{}",vo.getIds());
+        return noteService.putRecycleBin(vo);
+    }
+    /**
+     * 笔记移除回收站
+     * */
+    @PostMapping("/recover")
+    public ResponseData removeRecycleBin(@RequestBody NoteVo vo) {
+        log.info("笔记移除回收站：{}",vo.getIds());
+        return noteService.removeRecycleBin(vo);
     }
 
     /**
@@ -133,5 +147,32 @@ public class NoteController {
         file.transferTo( new File("E:\\"+filename));
         //返回
         return ResponseData.success("url访问地址……");
+    }
+
+    /**
+     * 笔记分享
+     * */
+    @PostMapping("/shareNote")
+    public ResponseData shareNote(@RequestBody NoteVo vo) {
+        log.info("分享链接：{}",vo.getId());
+        return noteService.shareNote(vo);
+    }
+
+    /**
+     * 访问分享链接
+     * */
+    @PostMapping("/viewSharedNote")
+    public ResponseData viewSharedNote(@RequestBody NoteShare vo) {
+        log.info("访问分享链接：{}",vo.getId());
+        return noteService.viewSharedNote(vo);
+    }
+
+    /**
+     * 用户评论
+     * */
+    @PostMapping("/comment/save")
+    public ResponseData saveComment(@RequestBody CommentVo vo) {
+        log.info("用户评论：{}",vo);
+        return noteService.saveComment(vo);
     }
 }

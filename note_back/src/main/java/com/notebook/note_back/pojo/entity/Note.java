@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Data
 @Builder
@@ -60,5 +59,6 @@ public class Note {
     /**
      * 笔记删除状态(0:未删除,1:已删除)
      * */
+    @TableField(updateStrategy = FieldStrategy.DEFAULT)
     private LocalDateTime deleteTime;
 }

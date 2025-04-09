@@ -56,6 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
         Page<Note> notePage = new Page<>(vo.getPage(), vo.getSize());
         QueryWrapper<Note> noteWrapper = new QueryWrapper<>();
         noteWrapper.eq("user_id", userId);
+        noteWrapper.isNull("delete_time");
         if (vo.getStatus() != null) {
             noteWrapper.eq("status", vo.getStatus());
         }

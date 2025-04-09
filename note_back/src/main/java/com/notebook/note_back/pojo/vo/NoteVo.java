@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 public class NoteVo {
@@ -47,6 +48,8 @@ public class NoteVo {
     private Integer status;
 
     private Integer userId;
+
+    private List<Integer> ids;
 
     private LocalDateTime deleteTime;
 }
