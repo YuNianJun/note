@@ -24,11 +24,18 @@ import java.util.UUID;
 public class NoteController {
     private final NoteService noteService;
 
+    /**
+     * 新增笔记
+     * */
     @PostMapping("/save")
     public ResponseData save(@RequestBody NoteVo note) {
         log.info("新增笔记：{}",note);
         return noteService.save(note);
     }
+
+    /**
+     * 更新笔记
+     * */
     @PostMapping("/update")
     public ResponseData update(@RequestBody NoteVo note) {
         log.info("更新笔记：{}",note);
@@ -41,42 +48,72 @@ public class NoteController {
         return noteService.pageQuery(note);
     }
 
+    /**
+     * 笔记批量移入回收站
+     * */
+    @GetMapping("/putRecycleBin")
+    public ResponseData putRecycleBin(@RequestBody List<Integer> ids) {
+        log.info("笔记批量移入回收站：{}",ids);
+        return noteService.putRecycleBin(ids);
+    }
+
+    /**
+     * 根据id删除单个笔记
+     * */
     @PostMapping("/delete/{id}")
     public ResponseData delete(@PathVariable Integer id) {
         log.info("根据id删除单个笔记：{}",id);
         return noteService.delete(id);
     }
 
+    /**
+     * 根据id批量删除笔记
+     * */
     @PostMapping("/delete/ids")
     public ResponseData delete(@RequestBody List<Integer> ids) {
         log.info("根据id批量删除笔记：{}",ids);
         return noteService.deleteIds(ids);
     }
 
+    /**
+     * 是否公开笔记
+     * */
     @PostMapping("/status/{id}")
     public ResponseData updateStatus(@PathVariable Integer id) {
         log.info("是否公开笔记：id={}",id);
         return noteService.updateStatus(id);
     }
 
+    /**
+     * 是否置顶笔记
+     * */
     @PostMapping("/top/{id}")
     public ResponseData updateTop(@PathVariable Integer id) {
         log.info("是否置顶笔记：id={}",id);
         return noteService.updateTop(id);
     }
 
+    /**
+     * 根据id查询笔记
+     * */
     @GetMapping("/{id}")
     public ResponseData getById(@PathVariable Integer id) {
         log.info("根据id查询笔记：{}",id);
         return noteService.getById(id);
     }
 
+    /**
+     * 根据标签查询笔记
+     * */
     @GetMapping("/{tags}")
     public ResponseData getByTags(@PathVariable String tags) {
         log.info("根据标签查询笔记：{}",tags);
         return noteService.getByTags(tags);
     }
 
+    /**
+     * 根据标题查询笔记
+     * */
     @GetMapping("/search/{title}")
     public ResponseData search(@PathVariable String title) {
         log.info("根据标题查询笔记：{}",title);

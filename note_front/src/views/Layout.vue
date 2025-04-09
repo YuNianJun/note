@@ -109,7 +109,7 @@ const handleCommand = (command) => {
           </el-icon>
           <span>笔记管理</span>
         </el-menu-item>
-        <el-menu-item index="/user/manage">
+        <el-menu-item index="/user/manage" v-if="userInfoStore.info.permission >= 1">
           <el-icon>
             <Avatar />
           </el-icon>

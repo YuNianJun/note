@@ -56,4 +56,9 @@ public class Note {
     private Integer status;
 
     private Integer userId;
+
+    /**
+     * 笔记删除状态(0:未删除,1:已删除)
+     * */
+    private LocalDateTime deleteTime;
 }

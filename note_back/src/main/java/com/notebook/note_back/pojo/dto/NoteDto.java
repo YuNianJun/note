@@ -47,4 +47,6 @@ public class NoteDto {
     private Integer status;
 
     private Integer userId;
+
+    private LocalDateTime deleteTime;
 }

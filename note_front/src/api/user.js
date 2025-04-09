@@ -46,7 +46,7 @@ export const userUpdateStatusService = (status) => {
 export const userDeleteService = (userId) => {
     return request.post('/user/delete',{userId})
 }
-export const userAddService = (user) => {
+export const userCreateService = (user) => {
     return request.post('/user/save',user)
 }
 

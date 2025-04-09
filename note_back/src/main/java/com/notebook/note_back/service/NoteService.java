@@ -28,4 +28,6 @@ public interface NoteService {
 
     ResponseData search(String title);
 
+    ResponseData putRecycleBin(List<Integer> ids);
+
 }

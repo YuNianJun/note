@@ -16,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -108,5 +109,16 @@ public class NoteServiceImpl implements NoteService {
         Map<String, Object> map = ThreadLocalUtil.get();
         Integer userId = (Integer) map.get("id");
         return ResponseData.success(noteMapper.selectOne(new QueryWrapper<Note>().like("title", title).eq("user_id", userId)));
+    }
+
+    @Override
+    public ResponseData putRecycleBin(List<Integer> ids) {
+        Note note = new Note();
+        note.setDeleteTime(LocalDateTime.now());
+        QueryWrapper<Note> wrapper = new QueryWrapper<>();
+        wrapper.in("id", ids);
+
+        noteMapper.update(note, wrapper);
+        return ResponseData.success(ids.size());
     }
 }

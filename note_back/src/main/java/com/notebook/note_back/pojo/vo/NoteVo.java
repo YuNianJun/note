@@ -47,4 +47,6 @@ public class NoteVo {
     private Integer status;
 
     private Integer userId;
+
+    private LocalDateTime deleteTime;
 }
