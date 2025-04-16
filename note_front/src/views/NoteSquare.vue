@@ -331,7 +331,7 @@ const uploadImage = async (formData) => {
   <el-card class="page-container">
     <template #header>
       <div class="header">
-        <span>笔记管理</span>
+        <span>笔记广场</span>
         <div class="extra">
           <el-button type="primary" @click="visibleDrawer = true;titles='添加笔记';clearData()" >添加笔记</el-button>
         </div>
@@ -369,7 +369,6 @@ const uploadImage = async (formData) => {
       <el-table-column label="分类" prop="categoryName"></el-table-column>
       <el-table-column label="标签" prop="tags"></el-table-column>
       <el-table-column label="创建时间" prop="createTime"></el-table-column>
-      <el-table-column label="修改时间" prop="updateTime"></el-table-column>
       <el-table-column label="状态">
         <template #default="{row}">
           {{ row.status === 1 ? '已发布' : '草稿' }}
@@ -415,9 +414,9 @@ const uploadImage = async (formData) => {
         <el-form-item label="笔记封面">
           <el-upload class="avatar-uploader" :auto-upload="true" :show-file-list="false"
                      action="/api/upload" name = 'file' :headers="{'Authorization':tokenStore.token}" :on-success="uploadSuccess">
-<!--            点击上传由于这里练习项目没有网络服务器 数据是上传到本地的所以浏览器会拦截本地文件加载导致不能造成数据回显，但是目录下是有图片成功上传到的。-->
-<!--            后续继续完成项目建议修改src中的值为模拟的固定网络图片url地址-->
-<!--            <img v-if="noteModel.coverImg" :src="noteModel.coverImg" class="avatar" />-->
+            <!--            点击上传由于这里练习项目没有网络服务器 数据是上传到本地的所以浏览器会拦截本地文件加载导致不能造成数据回显，但是目录下是有图片成功上传到的。-->
+            <!--            后续继续完成项目建议修改src中的值为模拟的固定网络图片url地址-->
+            <!--            <img v-if="noteModel.coverImg" :src="noteModel.coverImg" class="avatar" />-->
             <img v-if="noteModel.coverImg" :src="'https://ts1.cn.mm.bing.net/th/id/R-C.4bdc8f7f0e0201905fe400fb5156b7c7?rik=MVFo1SU7cYgFqg&riu=http%3a%2f%2fwww.spasvo.com%2fckfinder%2fuserfiles%2fimages%2f2020061536450116.jpg&ehk=r7Pp%2fX3wIOhP%2fcuW0ITLAHeD0sZPNatsyfpC3XWOM0s%3d&risl=&pid=ImgRaw&r=0'" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon">
               <Plus />
@@ -429,10 +428,10 @@ const uploadImage = async (formData) => {
             <mavon-editor
                 v-model="noteModel.content"
                 :subfield="true"
-            :defaultOpen="'edit'"
-            :toolbarsFlag="true"
-            :navigation="true"
-            style="height: 1080px"
+                :defaultOpen="'edit'"
+                :toolbarsFlag="true"
+                :navigation="true"
+                style="height: 1080px"
             />
           </div>
         </el-form-item>
@@ -516,13 +515,6 @@ const uploadImage = async (formData) => {
   flex: 1;
   height: 100% !important;
 }
-
-//::v-deep .v-note-panel {
-//  width: 50% !important;
-//  min-width: 50% !important;
-//  height: 100% !important;
-//}
-
 /* 编辑区样式 */
 ::v-deep .v-note-edit {
   padding-right: 10px;

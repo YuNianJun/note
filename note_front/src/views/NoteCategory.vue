@@ -19,7 +19,7 @@ const categorys = ref([
   }
 ])
 //声明笔记分类列表查询异步函数
-import {categoryListService} from '@/api/article.js'
+import {categoryListService} from '@/api/note.js'
 import {useUserInfoStore} from '@/stores/userInfo.js'
 import {ElMessage} from "element-plus";
 const userInfoStore = useUserInfoStore();
@@ -57,7 +57,7 @@ const rules = {
 //导入Element-Plus提示框组件
 
 //导入categoryAddService函数
-import {categoryAddService} from '@/api/article.js'
+import {categoryAddService} from '@/api/note.js'
 // 添加分类
 const addCategory = async () => {
   let result = await categoryAddService(categoryModel.value);
@@ -86,7 +86,7 @@ const updateCategoryEcho = (row) => {
   categoryModel.value.id = row.id;
 };
 //导入categoryUpdateServicee函数
-import {categoryUpdateService} from '@/api/article.js'
+import {categoryUpdateService} from '@/api/note.js'
 //修改分类
 const updateCategory=async ()=>{
   const requestData = {
@@ -115,7 +115,7 @@ const clearData = () => {
 //导入element的ElMessageBox提示框组件
 import { ElMessageBox } from 'element-plus'
 //导入categoryDeleteService函数
-import {categoryDeleteService} from '@/api/article.js'
+import {categoryDeleteService} from '@/api/note.js'
 //删除分类
 const deleteCategory = (row) => {
   ElMessageBox.confirm(

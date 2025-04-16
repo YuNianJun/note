@@ -9,7 +9,8 @@ import {
   EditPen,
   SwitchButton,
   DeleteFilled,
-  CaretBottom
+  CaretBottom,
+  ChatRound
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 import {useRouter} from 'vue-router'
@@ -98,19 +99,25 @@ const handleCommand = (command) => {
       <div class="el-aside__logo"></div>
       <el-menu active-text-color="#ffd04b" background-color="#232323"  text-color="#fff"
                router>
-        <el-menu-item index="/article/category">
+        <el-menu-item index="/note/category">
           <el-icon>
             <Management />
           </el-icon>
           <span>笔记分类</span>
         </el-menu-item>
-        <el-menu-item index="/article/manage">
+        <el-menu-item index="/note/manage">
           <el-icon>
             <Promotion />
           </el-icon>
           <span>笔记管理</span>
         </el-menu-item>
-        <el-menu-item index="/article/recycle">
+        <el-menu-item index="/note/square">
+          <el-icon>
+            <ChatRound />
+          </el-icon>
+          <span>笔记广场</span>
+        </el-menu-item>
+        <el-menu-item index="/note/recycle">
           <el-icon>
             <DeleteFilled />
           </el-icon>

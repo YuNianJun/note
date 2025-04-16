@@ -19,20 +19,20 @@ export const categoryUpdateService = (categoryModel) => {
     return request.post('/category/update',categoryModel)
 }
 //笔记列表查询
-export const articleListService = (params) => {
+export const noteListService = (params) => {
     return request.post('/category/page', { params: params });
 }
 //添加笔记
-export const articleAddService = (articleModel)=>{
-    return request.post('/note/save',articleModel)
+export const noteAddService = (noteModel)=>{
+    return request.post('/note/save',noteModel)
 }
 //修改笔记
-export const articleManageUpdateService = (articleModel) => {
-    return request.post('/note/update',articleModel)
+export const noteManageUpdateService = (noteModel) => {
+    return request.post('/note/update',noteModel)
 }
 
 //笔记放入回收站
-export const articleManageDeleteService = (ids) => {
+export const noteManageDeleteService = (ids) => {
     return request.post('/note/putRecycleBin', { ids });
 }
 

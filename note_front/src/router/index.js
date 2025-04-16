@@ -13,18 +13,20 @@ import UserResetPasswordVue from '@/views/UserResetPassword.vue'
 import UserManageVue from "@/views/UserManage.vue";
 import {useTokenStore} from "@/stores/token";
 import NoteRecycleBin from "@/views/NoteRecycleBin.vue";
+import NoteSquare from "@/views/NoteSquare.vue";
 
 //定义路由关系
 const routes = [
     {path:'/login',component:LoginVue},
     {path:'/',component:LayoutVue,
         //重定向 为首页页面默认展示的子路由页面
-        redirect: '/article/manage',
+        redirect: '/note/manage',
         //子路由
         children: [
-            { path: '/article/category', component: NoteCategoryVue },
-            { path: '/article/manage', component: NoteManageVue },
-            { path: '/article/recycle', component: NoteRecycleBin },
+            { path: '/note/category', component: NoteCategoryVue },
+            { path: '/note/manage', component: NoteManageVue },
+            { path: '/note/recycle', component: NoteRecycleBin },
+            { path: '/note/square', component: NoteSquare},
             { path: '/user/info', component: UserInfoVue },
             { path: '/user/avatar', component: UserAvatarVue },
             { path: '/user/password', component: UserResetPasswordVue },
