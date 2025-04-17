@@ -15,7 +15,7 @@ public interface NoteService {
 
     ResponseData update(NoteVo note);
 
-    IPage<NoteDto> pageQuery(NoteVo note);
+    ResponseData pageQuery(NoteVo note);
 
     ResponseData delete(Integer id);
 
@@ -40,5 +40,7 @@ public interface NoteService {
     ResponseData viewSharedNote(NoteShare vo);
 
     ResponseData removeRecycleBin(NoteVo vo);
+
+    ResponseData deleteComment(List<Integer> ids);
 
 }

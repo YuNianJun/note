@@ -29,7 +29,7 @@ public class NoteVo {
     /**
      * 完整内容
      * */
-    private String contentMd;
+    private String cover_img;
 
     private Integer categoryId;
 

@@ -32,7 +32,7 @@ public class Note {
     /**
      * 完整内容
      * */
-    private String contentMd;
+    private String cover_img;
 
     /**
      * 所属书架
@@ -59,6 +59,6 @@ public class Note {
     /**
      * 笔记删除状态(0:未删除,1:已删除)
      * */
-    @TableField(updateStrategy = FieldStrategy.DEFAULT)
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private LocalDateTime deleteTime;
 }

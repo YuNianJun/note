@@ -12,6 +12,7 @@ import java.time.LocalTime;
 public class NoteDto {
     private Integer page = 1;
     private Integer size = 10;
+    private Integer id;
     /**
      * 标题
      * */
@@ -27,7 +28,7 @@ public class NoteDto {
     /**
      * 完整内容
      * */
-    private String contentMd;
+    private String cover_img;
 
     private Integer categoryId;
 
