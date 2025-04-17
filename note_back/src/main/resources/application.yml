@@ -33,6 +33,8 @@ logging:
         service: info
         controller: info
 
+note:
+  share: ${NOTE_SHARE:https://yourdomain.com/note/share/}
 #note:
 #  jwt:
 #    # ??jwt??????????

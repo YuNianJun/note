@@ -16,6 +16,7 @@ import com.notebook.note_back.pojo.vo.NoteVo;
 import com.notebook.note_back.service.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -33,6 +34,9 @@ public class NoteServiceImpl implements NoteService {
     private final NoteMapper noteMapper;
     private final CommentMapper commentMapper;
     private final NoteShareMapper noteShareMapper;
+
+    @Value("${note.share}")
+    private String noteShareLink;
     @Override
     public ResponseData save(NoteVo vo) {
         Map<String, Object> map = ThreadLocalUtil.get();
@@ -174,7 +178,7 @@ public class NoteServiceImpl implements NoteService {
 
         noteShareMapper.insert(noteShare);
         // 返回分享链接
-        String shareLink = "https://yourdomain.com/note/share/" + vo.getId() + "?token=" + token;
+        String shareLink = noteShareLink + vo.getId() + "?token=" + token;
         return ResponseData.success(shareLink);
     }
 

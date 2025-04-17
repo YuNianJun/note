@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.pojo.dto.NoteDto;
 import com.notebook.note_back.pojo.entity.Comment;
+import com.notebook.note_back.pojo.entity.Note;
 import com.notebook.note_back.pojo.entity.NoteShare;
 import com.notebook.note_back.pojo.vo.CommentVo;
 import com.notebook.note_back.pojo.vo.NoteVo;
@@ -154,7 +155,7 @@ public class NoteController {
      * */
     @PostMapping("/shareNote")
     public ResponseData shareNote(@RequestBody NoteVo vo) {
-        log.info("分享链接：{}",vo.getId());
+        log.info("分享链接：{}",vo);
         return noteService.shareNote(vo);
     }
 
