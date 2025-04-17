@@ -37,8 +37,8 @@ export const noteManageDeleteService = (ids) => {
 }
 
 //回收站删除笔记
-export const recycleBinDeleteService = (id) => {
-    return request.post('/note/delete/'+id)
+export const recycleBinDeleteService = (ids) => {
+    return request.post('/note/delete/ids',{ ids });
 }
 //回收站查询笔记
 export const recycleBinListService = (params) => {
@@ -47,4 +47,16 @@ export const recycleBinListService = (params) => {
 //回收站笔记恢复
 export const recycleBinRecoverService = (ids) => {
     return request.post('/note/recover', { ids });
+}
+//笔记评论
+export const noteCommentService = (params) => {
+    return request.post('/note/comment', { params: params });
+}
+//笔记评论列表
+export const noteCommentListService = (params) => {
+    return request.post('/note/comment/list', { params: params });
+}
+//笔记评论删除
+export const noteCommentDeleteService = (ids) => {
+    return request.post('/note/comment/delete', { ids });
 }

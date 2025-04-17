@@ -50,7 +50,7 @@ public class NoteController {
      * 分页查询回收站中的笔记
      * */
     @PostMapping("/page")
-    public IPage<NoteDto> page(NoteVo note) {
+    public ResponseData page(NoteVo note) {
         log.info("分页查询回收站中的笔记：{}",note);
         return noteService.pageQuery(note);
     }
@@ -85,9 +85,9 @@ public class NoteController {
      * 根据id批量删除笔记
      * */
     @PostMapping("/delete/ids")
-    public ResponseData delete(@RequestBody List<Integer> ids) {
-        log.info("根据id批量删除笔记：{}",ids);
-        return noteService.deleteIds(ids);
+    public ResponseData delete(@RequestBody NoteVo vo) {
+        log.info("根据id批量删除笔记：{}",vo.getIds());
+        return noteService.deleteIds(vo.getIds());
     }
 
     /**
@@ -169,11 +169,19 @@ public class NoteController {
     }
 
     /**
-     * 用户评论
+     * 新增用户评论
      * */
     @PostMapping("/comment/save")
     public ResponseData saveComment(@RequestBody CommentVo vo) {
         log.info("用户评论：{}",vo);
         return noteService.saveComment(vo);
+    }
+    /**
+     * 删除用户评论
+     * */
+    @PostMapping("/comment/delete/ids")
+    public ResponseData deleteComment(@RequestBody CommentVo vo) {
+        log.info("删除用户评论：{}",vo.getIds());
+        return noteService.deleteComment(vo.getIds());
     }
 }

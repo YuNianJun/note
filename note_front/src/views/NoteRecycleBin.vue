@@ -1,8 +1,7 @@
 <script setup>
 import {
   RefreshRight,
-  Delete,
-  ZoomIn
+  Delete
 } from '@element-plus/icons-vue'
 
 import {onMounted, ref} from 'vue'
@@ -37,7 +36,7 @@ const notes = ref([
     title: "springboot开发",
     tags: "java",
     content: "springboot,从入门到入坟",
-    contentMd: "string",
+    coverImg: "string",
     categoryId: 2,
     create_time: "2025-03-03 11:55:30",
     update_time: "2025-03-03 11:55:30",
@@ -49,7 +48,7 @@ const notes = ref([
     title: "vue开发",
     tags: "vue",
     content: "vue,从开始到跑路",
-    contentMd: "string",
+    coverImg: "string",
     categoryId: 1,
     create_time: "2025-03-03 11:55:30",
     update_time: "2025-03-03 11:55:30",
@@ -76,7 +75,7 @@ const onCurrentChange = (num) => {
   getnotes()
 }
 //笔记列表查询
-import { categoryListService } from '@/api/note.js'
+import {categoryListService, recycleBinRecoverService} from '@/api/note.js'
 const getcategoryList = async () => {
   try {
     let resultC = await categoryListService();
@@ -101,33 +100,35 @@ const getnotes = async () => {
     const statusMap = { '已发布': 1, '草稿': 0 };
 
     // 请求参数
-    let params = {
-      page: pageNum.value,
+    const params = {
+      current: pageNum.value, // 使用后端要求的参数名
       size: pageSize.value,
-      categoryId: categoryId.value || null,
-      status: state.value ? statusMap[state.value] : null
+      categoryId: categoryId.value || null, // 直接使用 categoryId
+      status: state.value ? statusMap[state.value] : null // 直接使用 state
     };
 
-    let result = await recycleBinListService(params);
+    const result = await recycleBinListService(params);
     console.log('完整响应:', result);
 
-    // 修改判断条件
     if (result.code === 200) {
-      // 正确访问data字段
       const responseData = result.data;
 
-      // 展平数据（注意访问data.records）
-      notes.value = responseData.records.flatMap(category =>
-          category.notes.map(note => ({
-            ...note,
-            content: note.content || '',
-            categoryName: category.name,
-            createTime: note.createTime || '无', // 处理null值
-            updateTime: note.updateTime || '无'
-          }))
-      );
+      // 处理数据
+      notes.value = responseData.records.map(note => ({
+        id: note.id,
+        title: note.title || '',
+        tags: note.tags || '',
+        content: note.content || '',
+        coverImg: note.cover_img || '', // 使用 cover_img
+        categoryId: note.categoryId || null,
+        createTime: note.createTime || '无', // 处理null值
+        updateTime: note.updateTime || '无',
+        deleteTime: note.deleteTime || "无",
+        status: note.status || 0,
+        categoryName: note.categoryName || '无分类' // 如果后端没有返回分类名称，可以手动处理
+      }));
 
-      // 更新分页数据（从data中获取）
+      // 更新分页数据
       total.value = responseData.total;
       pageSize.value = responseData.size;
       pageNum.value = responseData.current;
@@ -140,9 +141,9 @@ const getnotes = async () => {
   }
 };
 
+
 getnotes();
 
-import {Plus} from '@element-plus/icons-vue'
 //控制抽屉是否显示
 const visibleDrawer = ref(false)
 //添加表单数据模型
@@ -161,68 +162,45 @@ const tokenStore = useTokenStore();
 
 //导入Element-Plus提示框组件
 import { ElMessage } from 'element-plus'
-//导入noteAddService函数
-import {noteAddService} from '@/api/note.js'
+
 //清空回收站
-const addnote=async (state)=>{
-  noteModel.value.state = state
-  let result = await noteAddService(noteModel.value);
-  if(result.code === 200) {
-    //成功
-    ElMessage.success(result.message? result.message:'添加成功')
-    //再次调用getnotes,获取笔记
-    getnotes()
-    //隐藏抽屉
-    visibleDrawer.value=false
-  }else{
-    //失败
-    ElMessage.error('添加失败')
-  }
-}
 
 //定义变量控制弹窗标题
 const titles=ref('')
 
-//编辑笔记回显
-const updateCategoryEcho = (row) => {
-  titles.value = '编辑笔记'
-  visibleDrawer.value = true
-  //将row中的数据赋值给categoryModel
-  noteModel.value.title = row.title;
-  noteModel.value.categoryId = row.categoryId;
-  noteModel.value.coverImg = row.coverImg;
-  noteModel.value.content = row.content;
-  noteModel.value.tags = row.tags;
-  noteModel.value.state = row.status;
-  // 修改的时候必须传递分类的 id，所以扩展一个 id 属性
-  noteModel.value.id = row.id;
-}
 
 
-import {recycleBinRecoverService} from '@/api/note.js'
-//编辑笔记
-const updateManage = async () => {
-  const requestData = {
-    id: noteModel.value.id,
-    title: noteModel.value.title,
-    tags: noteModel.value.tags || '',
-    content: noteModel.value.content || '',
-    status: noteModel.value.status,
-    categoryId: noteModel.value.categoryId  // 补充 categoryId 字段
-  };
-  let result = await recycleBinRecoverService(requestData)
-  if(result.code === 200){
-    //成功
-    ElMessage.success(result.message ? result.message:'回复笔记成功')
-    //隐藏弹窗
-    visibleDrawer.value = false
-    //刷新分类列表 再次调用getnotes,获取笔记
-    getnotes()
-  }else{
-    //失败
-    ElMessage.error('回复笔记失败')
-  }
-}
+import {recycleBinDeleteService} from '@/api/note.js'
+const clearRecycleBin = () => {
+  ElMessageBox.confirm(
+      '确认是否清空回收站？',
+      '提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(async () => {
+        // 用户点击了确认
+        try {
+          const ids = notes.value.map(note => note.id);
+          await recycleBinDeleteService(ids);
+          ElMessage.success('回收站已清空');
+          // 重新获取笔记列表
+          await getnotes();
+        } catch (error) {
+          ElMessage.error('清空回收站失败: ' + error.message);
+        }
+      })
+      .catch(() => {
+        // 用户点击了取消
+        ElMessage({
+          type: 'info',
+          message: '取消清空回收站',
+        });
+      });
+};
 //清空模型数据
 const clearData = () => {
   visibleDrawer.value = ''
@@ -236,7 +214,7 @@ const clearData = () => {
 //导入element的ElMessageBox提示框组件
 import { ElMessageBox } from 'element-plus'
 
-import {recycleBinDeleteService} from '@/api/note.js'
+
 import router from "@/router";
 import axios from "axios";
 // 删除笔记
@@ -276,7 +254,16 @@ if (!tokenStore.token) {
 const formatStatus = (row) => {
   return row.status === 1 ? '已发布' : '草稿';
 };
-
+const recoverNote = async (id) => {
+  try {
+    await recycleBinRecoverService([id]);
+    ElMessage.success('笔记恢复成功');
+    // 重新获取笔记列表
+    await getnotes();
+  } catch (error) {
+    ElMessage.error('笔记恢复失败: ' + error.message);
+  }
+};
 
 </script>
 <template>
@@ -285,7 +272,7 @@ const formatStatus = (row) => {
       <div class="header">
         <span>回收站</span>
         <div class="extra">
-          <el-button type="primary" @click="visibleDrawer = true;titles='清空回收站';clearData()" >清空回收站</el-button>
+          <el-button type="primary" @click="clearRecycleBin">清空回收站</el-button>
         </div>
       </div>
     </template>
@@ -330,8 +317,7 @@ const formatStatus = (row) => {
       </el-table-column>
       <el-table-column label="操作" width="200">
         <template #default="{ row }">
-          <el-button :icon="ZoomIn" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
-          <el-button :icon="RefreshRight" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
+          <el-button :icon="RefreshRight" circle plain type="primary" @click="recoverNote(row.id)"></el-button>
           <el-button :icon="Delete" circle plain type="danger" @click="deleteManage(row)"></el-button>
         </template>
       </el-table-column>
@@ -344,46 +330,7 @@ const formatStatus = (row) => {
                    layout="jumper, total, sizes, prev, pager, next" background :total="total" @size-change="onSizeChange"
                    @current-change="onCurrentChange" style="margin-top: 20px; justify-content: flex-end" />
     <!-- 抽屉 -->
-    <el-drawer v-model="visibleDrawer" :title="titles" direction="rtl" size="50%">
-      <!-- 清空回收站表单 -->
-      <el-form :model="noteModel" label-width="100px" >
-        <el-form-item label="笔记标题" >
-          <el-input v-model="noteModel.title" placeholder="请输入标题"></el-input>
-        </el-form-item>
-        <el-form-item label="笔记分类">
-          <el-select
-              v-model="noteModel.categoryId"
-              placeholder="请选择分类"
-          >
-            <el-option
-                v-for="item in categorys"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="笔记标签">
-          <el-input v-model="noteModel.tags" placeholder="请输入标签"></el-input>
-        </el-form-item>
-        <el-form-item label="笔记内容">
-          <div class="editor-container">
-            <mavon-editor
-                v-model="noteModel.content"
-                :subfield="true"
-                :defaultOpen="'edit'"
-                :toolbarsFlag="true"
-                :navigation="true"
-                style="height: 1080px"
-            />
-          </div>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="titles === '清空回收站' ? addnote('已发布'):updateManage('已发布')" >发布</el-button>
-          <el-button type="info" @click="titles === '编辑笔记' ? addnote('草稿'):updateManage('草稿')">草稿</el-button>
-        </el-form-item>
-      </el-form>
-    </el-drawer>
+
   </el-card>
 </template>
 <style lang="scss" scoped>

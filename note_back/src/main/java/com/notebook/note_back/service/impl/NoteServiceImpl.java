@@ -1,5 +1,6 @@
 package com.notebook.note_back.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
@@ -15,6 +16,7 @@ import com.notebook.note_back.pojo.vo.CommentVo;
 import com.notebook.note_back.pojo.vo.NoteVo;
 import com.notebook.note_back.service.NoteService;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -57,33 +60,46 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public IPage<NoteDto> pageQuery(NoteVo vo) {
+    public ResponseData pageQuery(NoteVo vo) {
         Map<String, Object> map = ThreadLocalUtil.get();
         Integer userId = (Integer) map.get("id");
-        QueryWrapper<Note> queryWrapper = new QueryWrapper<>();
-
-        queryWrapper.eq("user_id", userId);
-        queryWrapper.isNotNull("delete_time");
+        // 分页查询笔记（核心分页逻辑）
+        Page<Note> notePage = new Page<>(vo.getPage(), vo.getSize());
+        QueryWrapper<Note> noteWrapper = new QueryWrapper<>();
+        noteWrapper.eq("user_id", userId);
+        noteWrapper.isNotNull("delete_time"); // 查询进入回收站的笔记
         if (null != vo.getTitle() && !vo.getTitle().isEmpty()) {
-            queryWrapper.eq("title", vo.getTitle());
+            noteWrapper.eq("title", vo.getTitle());
         }
-        if (null != vo.getTop()){
-            queryWrapper.eq("top", vo.getTop());
+        if (null != vo.getTop()) {
+            noteWrapper.eq("top", vo.getTop());
         }
-        if (null != vo.getTags() && !vo.getTags().isEmpty()){
-            queryWrapper.eq("tags", vo.getTags());
+        if (null != vo.getTags() && !vo.getTags().isEmpty()) {
+            noteWrapper.eq("tags", vo.getTags());
         }
-        if (null != vo.getCategoryId()){
-            queryWrapper.eq("category_id", vo.getCategoryId());
+        if (null != vo.getCategoryId()) {
+            noteWrapper.eq("category_id", vo.getCategoryId());
         }
 
-        Page<Note> notePage = noteMapper.selectPage(new Page<>(vo.getPage(), vo.getSize()), queryWrapper);
-        return notePage.convert(note -> {
+        noteMapper.selectPage(notePage, noteWrapper);
+
+        IPage<NoteDto> noteDtoPage = notePage.convert(note -> {
             NoteDto noteDto = new NoteDto();
             BeanUtils.copyProperties(note, noteDto);
             return noteDto;
         });
+
+        // 将 IPage<NoteDto> 转换为一个包含分页信息的对象
+        Map<String, Object> result = new HashMap<>();
+        result.put("total", noteDtoPage.getTotal());
+        result.put("pages", noteDtoPage.getPages());
+        result.put("current", noteDtoPage.getCurrent());
+        result.put("size", noteDtoPage.getSize());
+        result.put("records", noteDtoPage.getRecords());
+
+        return ResponseData.success(result);
     }
+
 
     @Override
     public ResponseData delete(Integer id) {
@@ -147,10 +163,17 @@ public class NoteServiceImpl implements NoteService {
     public ResponseData removeRecycleBin(NoteVo vo) {
         Note note = new Note();
         note.setDeleteTime(null);
-        QueryWrapper<Note> wrapper = new QueryWrapper<>();
-        wrapper.in("id", vo.getIds());
+        UpdateWrapper<Note> wrapper = new UpdateWrapper<>();
+        wrapper.in("id", vo.getIds()).set("delete_time", null);
 
         return ResponseData.success(noteMapper.update(note, wrapper));
+    }
+
+    @Override
+    public ResponseData deleteComment(List<Integer> ids) {
+
+        // 删除评论
+        return ResponseData.success(commentMapper.deleteByIds(ids));
     }
 
     @Override

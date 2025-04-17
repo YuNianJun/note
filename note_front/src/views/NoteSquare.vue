@@ -1,6 +1,6 @@
 <script setup>
 import {
-  Edit,
+  ChatDotRound,
   Delete
 } from '@element-plus/icons-vue'
 
@@ -188,11 +188,12 @@ const addnote=async (state)=>{
 
 //定义变量控制弹窗标题
 const titles=ref('')
-
+const isViewOnly = ref(false) // 新增标志位，控制是否只能查看
 //编辑笔记回显
 const updateCategoryEcho = (row) => {
-  titles.value = '编辑笔记'
+  titles.value = '查看笔记'
   visibleDrawer.value = true
+  isViewOnly.value = true
   //将row中的数据赋值给categoryModel
   noteModel.value.title = row.title;
   noteModel.value.categoryId = row.categoryId;
@@ -326,12 +327,23 @@ const uploadImage = async (formData) => {
   })
 }
 
+const comments = ref([]) // 评论区数据模型
+
+// 获取评论
+const fetchComments = async (noteId) => {
+  try {
+    const response = await axios.get(`/api/comments?noteId=${noteId}`)
+    comments.value = response.data
+  } catch (error) {
+    console.error('获取评论失败:', error)
+  }
+}
 </script>
 <template>
   <el-card class="page-container">
     <template #header>
       <div class="header">
-        <span>笔记广场</span>
+        <span>笔记管理</span>
         <div class="extra">
           <el-button type="primary" @click="visibleDrawer = true;titles='添加笔记';clearData()" >添加笔记</el-button>
         </div>
@@ -369,6 +381,7 @@ const uploadImage = async (formData) => {
       <el-table-column label="分类" prop="categoryName"></el-table-column>
       <el-table-column label="标签" prop="tags"></el-table-column>
       <el-table-column label="创建时间" prop="createTime"></el-table-column>
+      <el-table-column label="修改时间" prop="updateTime"></el-table-column>
       <el-table-column label="状态">
         <template #default="{row}">
           {{ row.status === 1 ? '已发布' : '草稿' }}
@@ -376,7 +389,7 @@ const uploadImage = async (formData) => {
       </el-table-column>
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
-          <el-button :icon="Edit" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
+          <el-button :icon="ChatDotRound" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
           <el-button :icon="Delete" circle plain type="danger" @click="deleteManage(row)"></el-button>
         </template>
       </el-table-column>
@@ -389,35 +402,24 @@ const uploadImage = async (formData) => {
                    layout="jumper, total, sizes, prev, pager, next" background :total="total" @size-change="onSizeChange"
                    @current-change="onCurrentChange" style="margin-top: 20px; justify-content: flex-end" />
     <!-- 抽屉 -->
-    <el-drawer v-model="visibleDrawer" :title="titles" direction="rtl" size="50%">
+    <el-drawer v-model="visibleDrawer" :title="titles" direction="rtl" size="90%">
       <!-- 添加笔记表单 -->
-      <el-form :model="noteModel" label-width="100px" >
-        <el-form-item label="笔记标题" >
-          <el-input v-model="noteModel.title" placeholder="请输入标题"></el-input>
+      <el-form :model="noteModel" label-width="100px">
+        <el-form-item label="笔记标题">
+          <el-input v-model="noteModel.title" placeholder="请输入标题" :disabled="isViewOnly"></el-input>
         </el-form-item>
         <el-form-item label="笔记分类">
-          <el-select
-              v-model="noteModel.categoryId"
-              placeholder="请选择分类"
-          >
-            <el-option
-                v-for="item in categorys"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-            />
+          <el-select v-model="noteModel.categoryId" placeholder="请选择分类" :disabled="isViewOnly">
+            <el-option v-for="item in categorys" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="笔记标签">
-          <el-input v-model="noteModel.tags" placeholder="请输入标签"></el-input>
+          <el-input v-model="noteModel.tags" placeholder="请输入标签" :disabled="isViewOnly"></el-input>
         </el-form-item>
         <el-form-item label="笔记封面">
           <el-upload class="avatar-uploader" :auto-upload="true" :show-file-list="false"
-                     action="/api/upload" name = 'file' :headers="{'Authorization':tokenStore.token}" :on-success="uploadSuccess">
-            <!--            点击上传由于这里练习项目没有网络服务器 数据是上传到本地的所以浏览器会拦截本地文件加载导致不能造成数据回显，但是目录下是有图片成功上传到的。-->
-            <!--            后续继续完成项目建议修改src中的值为模拟的固定网络图片url地址-->
-            <!--            <img v-if="noteModel.coverImg" :src="noteModel.coverImg" class="avatar" />-->
-            <img v-if="noteModel.coverImg" :src="'https://ts1.cn.mm.bing.net/th/id/R-C.4bdc8f7f0e0201905fe400fb5156b7c7?rik=MVFo1SU7cYgFqg&riu=http%3a%2f%2fwww.spasvo.com%2fckfinder%2fuserfiles%2fimages%2f2020061536450116.jpg&ehk=r7Pp%2fX3wIOhP%2fcuW0ITLAHeD0sZPNatsyfpC3XWOM0s%3d&risl=&pid=ImgRaw&r=0'" class="avatar" />
+                     action="/api/upload" name='file' :headers="{'Authorization':tokenStore.token}" :on-success="uploadSuccess" :disabled="isViewOnly">
+            <img v-if="noteModel.coverImg" :src="noteModel.coverImg" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon">
               <Plus />
             </el-icon>
@@ -425,21 +427,27 @@ const uploadImage = async (formData) => {
         </el-form-item>
         <el-form-item label="笔记内容">
           <div class="editor-container">
-            <mavon-editor
-                v-model="noteModel.content"
-                :subfield="true"
-                :defaultOpen="'edit'"
-                :toolbarsFlag="true"
-                :navigation="true"
-                style="height: 1080px"
-            />
+            <mavon-editor v-model="noteModel.content" :subfield="true" :defaultOpen="'edit'" :toolbarsFlag="true" :navigation="true" style="height: 500px" :editable="!isViewOnly" />
           </div>
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="titles === '添加笔记' ? addnote('已发布'):updateManage('已发布')" >发布</el-button>
+        <el-form-item v-if="!isViewOnly">
+          <el-button type="primary" @click="titles === '添加笔记' ? addnote('已发布'):updateManage('已发布')">发布</el-button>
           <el-button type="info" @click="titles === '编辑笔记' ? addnote('草稿'):updateManage('草稿')">草稿</el-button>
         </el-form-item>
       </el-form>
+
+      <!-- 评论区 -->
+      <div class="comments-section">
+        <h3>评论区</h3>
+        <div v-for="comment in comments" :key="comment.id" class="comment-item">
+          <img :src="comment.avatar" class="comment-avatar" />
+          <div class="comment-content">
+            <span class="comment-username">{{ comment.username }}</span>
+            <span class="comment-time">{{ comment.time }}</span>
+            <p class="comment-text">{{ comment.content }}</p>
+          </div>
+        </div>
+      </div>
     </el-drawer>
   </el-card>
 </template>
@@ -533,6 +541,45 @@ const uploadImage = async (formData) => {
   ::v-deep .v-note-panel {
     width: 100% !important;
     height: 50vh !important;
+  }
+}
+.comments-section {
+  margin-top: 20px;
+  padding: 20px;
+  border-top: 1px solid #eee;
+
+  h3 {
+    margin-bottom: 15px;
+  }
+
+  .comment-item {
+    display: flex;
+    margin-bottom: 15px;
+
+    .comment-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .comment-content {
+      flex: 1;
+
+      .comment-username {
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .comment-time {
+        color: #999;
+        font-size: 0.9em;
+      }
+
+      .comment-text {
+        margin-top: 5px;
+      }
+    }
   }
 }
 </style>
