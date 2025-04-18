@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -190,10 +191,10 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseData viewSharedNote(NoteShare vo) {
+    public ResponseData viewSharedNote(Integer noteId, String token) {
         // 从数据库中查询 token 是否有效
         QueryWrapper<NoteShare> wrapper = new QueryWrapper<>();
-        wrapper.eq("token", vo.getToken());
+        wrapper.eq("token", token);
         NoteShare noteShare = noteShareMapper.selectOne(wrapper);
         // 验证 token 是否存在且未过期（7 天内有效）
         if (noteShare == null || noteShare.getCreateTime().isBefore(LocalDateTime.now().minusDays(7))) {

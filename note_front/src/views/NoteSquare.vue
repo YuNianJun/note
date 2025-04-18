@@ -26,7 +26,7 @@ const categorys = ref([
 //用户搜索时选中的分类id
 const categoryId=ref('')
 
-//用户搜索时选中的发布状态
+//用户搜索时选中的公开状态
 const state=ref('')
 
 //笔记列表数据模型
@@ -97,7 +97,7 @@ import { noteListService } from '@/api/note.js'
 // 修改后的获取笔记方法
 const getnotes = async () => {
   try {
-    const statusMap = { '已发布': 1, '草稿': 0 };
+    const statusMap = { '已公开': 1, '私有': 0 };
 
     // 请求参数
     let params = {
@@ -285,7 +285,7 @@ if (!tokenStore.token) {
   router.push('/login')
 }
 const formatStatus = (row) => {
-  return row.status === 1 ? '已发布' : '草稿';
+  return row.status === 1 ? '已公开' : '私有';
 };
 const markdownOption = {
   bold: true, // 粗体
@@ -424,10 +424,10 @@ const addComment = async () => {
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="发布状态：">
+      <el-form-item label="公开状态：">
         <el-select v-model="state" placeholder="请选择">
-          <el-option label="已发布" value="已发布"></el-option>
-          <el-option label="草稿" value="草稿"></el-option>
+          <el-option label="已公开" value="已公开"></el-option>
+          <el-option label="私有" value="私有"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -444,7 +444,7 @@ const addComment = async () => {
       <el-table-column label="修改时间" prop="updateTime"></el-table-column>
       <el-table-column label="状态">
         <template #default="{row}">
-          {{ row.status === 1 ? '已发布' : '草稿' }}
+          {{ row.status === 1 ? '已公开' : '私有' }}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="100">
@@ -491,8 +491,8 @@ const addComment = async () => {
           </div>
         </el-form-item>
         <el-form-item v-if="!isViewOnly">
-          <el-button type="primary" @click="titles === '添加笔记' ? addnote('已发布'):updateManage('已发布')">发布</el-button>
-          <el-button type="info" @click="titles === '编辑笔记' ? addnote('草稿'):updateManage('草稿')">草稿</el-button>
+          <el-button type="primary" @click="titles === '添加笔记' ? addnote('已公开'):updateManage('已公开')">公开</el-button>
+          <el-button type="info" @click="titles === '编辑笔记' ? addnote('私有'):updateManage('私有')">私有</el-button>
         </el-form-item>
       </el-form>
 

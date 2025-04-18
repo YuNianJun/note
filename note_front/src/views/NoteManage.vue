@@ -27,8 +27,8 @@ const categorys = ref([
 //用户搜索时选中的分类id
 const categoryId=ref('')
 
-//用户搜索时选中的发布状态
-const state=ref('')
+//用户搜索时选中的公开状态
+const status=ref('')
 
 //笔记列表数据模型
 const notes = ref([
@@ -76,7 +76,7 @@ const onCurrentChange = (num) => {
   getnotes()
 }
 //笔记列表查询
-import { categoryListService } from '@/api/note.js'
+import {categoryListService, noteShareService,noteShareVisitService} from '@/api/note.js'
 const getcategoryList = async () => {
   try {
     let resultC = await categoryListService();
@@ -98,14 +98,14 @@ import { noteListService } from '@/api/note.js'
 // 修改后的获取笔记方法
 const getnotes = async () => {
   try {
-    const statusMap = { '已发布': 1, '草稿': 0 };
+    const statusMap = { '已公开': 1, '私有': 0 };
 
     // 请求参数
     let params = {
       page: pageNum.value,
       size: pageSize.value,
       categoryId: categoryId.value || null,
-      status: state.value ? statusMap[state.value] : null
+      status: status.value ? statusMap[status.value] : null
     };
 
     let result = await noteListService(params);
@@ -169,8 +169,8 @@ import { ElMessage } from 'element-plus'
 //导入noteAddService函数
 import {noteAddService} from '@/api/note.js'
 //添加笔记
-const addnote=async (state)=>{
-  noteModel.value.state = state
+const addnote=async (status)=>{
+  noteModel.value.status = status === '已公开' ? 1 : 0;
   //由于本地文件存储 这里测试使用固定的网络url 如果有网络服务器存储那就可以不需要这个
   noteModel.value.coverImg = 'https://ts1.cn.mm.bing.net/th/id/R-C.4bdc8f7f0e0201905fe400fb5156b7c7?rik=MVFo1SU7cYgFqg&riu=http%3a%2f%2fwww.spasvo.com%2fckfinder%2fuserfiles%2fimages%2f2020061536450116.jpg&ehk=r7Pp%2fX3wIOhP%2fcuW0ITLAHeD0sZPNatsyfpC3XWOM0s%3d&risl=&pid=ImgRaw&r=0'
   let result = await noteAddService(noteModel.value);
@@ -190,46 +190,48 @@ const addnote=async (state)=>{
 //定义变量控制弹窗标题
 const titles=ref('')
 
-//编辑笔记回显
+// 编辑笔记回显
 const updateCategoryEcho = (row) => {
-  titles.value = '编辑笔记'
-  visibleDrawer.value = true
-  //将row中的数据赋值给categoryModel
+  titles.value = '编辑笔记';
+  visibleDrawer.value = true;
+  // 将row中的数据赋值给noteModel
   noteModel.value.title = row.title;
   noteModel.value.categoryId = row.categoryId;
   noteModel.value.coverImg = row.coverImg;
   noteModel.value.content = row.content;
   noteModel.value.tags = row.tags;
-  noteModel.value.state = row.status;
+  noteModel.value.status = row.status; // 确保 status 是数字
   // 修改的时候必须传递分类的 id，所以扩展一个 id 属性
   noteModel.value.id = row.id;
-}
+};
 
 //导入noteManageUpdateService函数
 import {noteManageUpdateService} from '@/api/note.js'
-//编辑笔记
-const updateManage = async () => {
+// 编辑笔记
+const updateManage = async (status) => {
+  noteModel.value.status = status === '已公开' ? 1 : 0; // 根据传入的 status 设置值
   const requestData = {
     id: noteModel.value.id,
     title: noteModel.value.title,
     tags: noteModel.value.tags || '',
     content: noteModel.value.content || '',
-    status: noteModel.value.status,
+    status: noteModel.value.status, // 使用设置后的 status
     categoryId: noteModel.value.categoryId  // 补充 categoryId 字段
   };
-  let result = await noteManageUpdateService(requestData)
-  if(result.code === 200){
-    //成功
-    ElMessage.success(result.message ? result.message:'编辑成功')
-    //隐藏弹窗
-    visibleDrawer.value = false
-    //刷新分类列表 再次调用getnotes,获取笔记
-    getnotes()
-  }else{
-    //失败
-    ElMessage.error('编辑失败')
+  console.log('Request Data:', requestData);
+  let result = await noteManageUpdateService(requestData);
+  if (result.code === 200) {
+    // 成功
+    ElMessage.success(result.message ? result.message : '编辑成功');
+    // 隐藏弹窗
+    visibleDrawer.value = false;
+    // 刷新分类列表 再次调用getnotes,获取笔记
+    getnotes();
+  } else {
+    // 失败
+    ElMessage.error('编辑失败');
   }
-}
+};
 //清空模型数据
 const clearData = () => {
   visibleDrawer.value = ''
@@ -237,7 +239,7 @@ const clearData = () => {
   noteModel.value.categoryId = ''
   noteModel.value.coverImg = ''
   noteModel.value.content = ''
-  noteModel.value.state = ''
+  noteModel.value.status = ''
 }
 
 //导入element的ElMessageBox提示框组件
@@ -281,7 +283,7 @@ if (!tokenStore.token) {
   router.push('/login')
 }
 const formatStatus = (row) => {
-  return row.status === 1 ? '已发布' : '草稿';
+  return row.status === 1 ? '已公开' : '私有';
 };
 const markdownOption = {
   bold: true, // 粗体
@@ -326,10 +328,28 @@ const uploadImage = async (formData) => {
     }
   })
 }
-const shareNote = (row) => {
-  // 假设分享链接的格式为 /note/detail?id=noteId
-  shareLink.value = `${window.location.origin}/note/detail?id=${row.id}`;
-  shareDialogVisible.value = true;
+const shareLink = ref('');
+const shareDialogVisible = ref(false);
+const shareNote = async (row) => {
+  try {
+    console.log('Selected row:', row)
+    const id = row.id;
+    console.log('Note ID:', id);
+    if (!id) {
+      ElMessage.error('笔记ID无效');
+      return;
+    }
+    const result = await noteShareService({id});
+    if (result.code === 200) {
+      shareLink.value = result.data;
+      shareDialogVisible.value = true;
+    } else {
+      ElMessage.error(result.msg || '获取分享链接失败');
+    }
+  } catch (error) {
+    console.error('获取分享链接失败:', error);
+    ElMessage.error('获取分享链接失败');
+  }
 };
 
 // 复制分享链接
@@ -343,7 +363,24 @@ const copyShareLink = () => {
         ElMessage.error('复制失败');
       });
 };
-
+//前端验证分享链接
+const validateShareLink = async (link) => {
+  try {
+    const url = new URL(link);
+    const id = url.pathname.split('/').pop();
+    const token = url.searchParams.get('token');
+    const result = await noteShareVisitService({ id, token });
+    if (result.code === 200) {
+      ElMessage.success('分享链接验证成功');
+      // 这里可以进行其他操作，比如跳转到分享页面
+    } else {
+      ElMessage.error(result.msg || '分享链接验证失败');
+    }
+  } catch (error) {
+    console.error('验证分享链接失败:', error);
+    ElMessage.error('验证分享链接失败');
+  }
+};
 </script>
 <template>
   <el-card class="page-container">
@@ -370,15 +407,15 @@ const copyShareLink = () => {
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="发布状态：">
-        <el-select v-model="state" placeholder="请选择">
-          <el-option label="已发布" value="已发布"></el-option>
-          <el-option label="草稿" value="草稿"></el-option>
+      <el-form-item label="笔记状态：">
+        <el-select v-model="status" placeholder="请选择">
+          <el-option label="已公开" value="已公开"></el-option>
+          <el-option label="私有" value="私有"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="getnotes()">搜索</el-button>
-        <el-button @click="categoryId='';state='';getnotes()">重置</el-button>
+        <el-button @click="categoryId='';status='';getnotes()">重置</el-button>
       </el-form-item>
     </el-form>
     <!-- 笔记列表 -->
@@ -390,7 +427,7 @@ const copyShareLink = () => {
       <el-table-column label="修改时间" prop="updateTime"></el-table-column>
       <el-table-column label="状态">
         <template #default="{row}">
-          {{ row.status === 1 ? '已发布' : '草稿' }}
+          {{ row.status === 1 ? '已公开' : '私有' }}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="150">
@@ -411,9 +448,9 @@ const copyShareLink = () => {
     <!-- 分享对话框 -->
     <el-dialog v-model="shareDialogVisible" title="分享笔记" width="30%">
       <div>
-        <p>分享链接:</p>
         <el-input v-model="shareLink" readonly></el-input>
-        <el-button type="primary" @click="copyShareLink">复制链接</el-button>
+        <el-button type="primary" @click="copyShareLink" style="margin-top: 10px;">复制链接</el-button>
+        <el-button type="primary" @click="validateShareLink(shareLink)" style="margin-top: 10px;">验证链接</el-button>
       </div>
     </el-dialog>
     <!-- 抽屉 -->
@@ -464,8 +501,8 @@ const copyShareLink = () => {
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="titles === '添加笔记' ? addnote('已发布'):updateManage('已发布')" >发布</el-button>
-          <el-button type="info" @click="titles === '编辑笔记' ? addnote('草稿'):updateManage('草稿')">草稿</el-button>
+          <el-button type="primary" @click="titles === '添加笔记' ? addnote('已公开') : updateManage('已公开')">公开</el-button>
+          <el-button type="info" @click="titles === '添加笔记' ? addnote('私有') : updateManage('私有')">私有</el-button>
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -569,5 +606,15 @@ const copyShareLink = () => {
     width: 100% !important;
     height: 50vh !important;
   }
+}
+/* 分享对话框样式 */
+.share-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* 设置间距 */
+}
+
+.share-dialog-content .el-input {
+  margin-bottom: 10px; /* 设置输入框底部间距 */
 }
 </style>

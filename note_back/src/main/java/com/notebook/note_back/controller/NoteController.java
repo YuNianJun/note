@@ -165,10 +165,10 @@ public class NoteController {
     /**
      * 访问分享链接
      * */
-    @PostMapping("/viewSharedNote")
-    public ResponseData viewSharedNote(@RequestBody NoteShare vo) {
-        log.info("访问分享链接：{}",vo.getId());
-        return noteService.viewSharedNote(vo);
+    @GetMapping("/viewSharedNote/{noteId}")
+    public ResponseData viewSharedNote(@PathVariable Integer noteId, @RequestParam String token) {
+        log.info("访问分享链接：{}",noteId);
+        return noteService.viewSharedNote(noteId, token);
     }
 
 

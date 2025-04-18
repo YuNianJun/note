@@ -7,6 +7,7 @@ import com.notebook.note_back.pojo.entity.Comment;
 import com.notebook.note_back.pojo.entity.NoteShare;
 import com.notebook.note_back.pojo.vo.CommentVo;
 import com.notebook.note_back.pojo.vo.NoteVo;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface NoteService {
 
     ResponseData shareNote(NoteVo vo);
 
-    ResponseData viewSharedNote(NoteShare vo);
+    ResponseData viewSharedNote(Integer noteId, String token);
 
     ResponseData removeRecycleBin(NoteVo vo);
 

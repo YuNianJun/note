@@ -34,7 +34,7 @@ logging:
         controller: info
 
 note:
-  share: ${NOTE_SHARE:https://yourdomain.com/note/share/}
+  share: ${NOTE_SHARE:https://localhost:8080/note/viewSharedNote/}
 #note:
 #  jwt:
 #    # ??jwt??????????

@@ -30,9 +30,11 @@ const routes = [
             { path: '/user/info', component: UserInfoVue },
             { path: '/user/avatar', component: UserAvatarVue },
             { path: '/user/password', component: UserResetPasswordVue },
-            { path: '/user/manage', component: UserManageVue}
+            { path: '/user/manage', component: UserManageVue},
+
+            { path: '/share/viewSharedNote/:shareId', component: NoteManageVue }
         ]
-    }
+    },
 ]
 
 //创建路由器

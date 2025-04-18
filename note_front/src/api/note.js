@@ -36,8 +36,8 @@ export const noteShareService = (noteModel) => {
     return request.post('/note/shareNote',noteModel)
 }
 //访问分享笔记
-export const noteShareVisitService = (noteModel) => {
-    return request.post('/note/viewSharedNote',noteModel)
+export const noteShareVisitService = (id, token) => {
+    return request.get(`/note/viewSharedNote/${id}?token=${token}`);
 }
 //笔记放入回收站
 export const noteManageDeleteService = (ids) => {
