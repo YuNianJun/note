@@ -107,12 +107,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseData updateStatus(Integer status) {
-        Map<String, Object> map = ThreadLocalUtil.get();
-        Integer id = (Integer) map.get("id");
+    public ResponseData updateStatus(UserVo vo) {
+
         User user = User.builder()
-                .id(id)
-                .status(status)
+                .id(vo.getId())
+                .status(vo.getStatus())
                 .build();
         return ResponseData.success(userMapper.updateById(user));
     }

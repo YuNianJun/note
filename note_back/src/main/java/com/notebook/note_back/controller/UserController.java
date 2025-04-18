@@ -73,8 +73,8 @@ public class UserController {
      */
     @PostMapping("/status")
     public ResponseData updateStatus(@RequestBody UserVo user){
-        log.info("启用禁用用户账号：status={}",user.getStatus());
-        return userService.updateStatus(user.getStatus());
+        log.info("启用禁用用户账号：{}",user);
+        return userService.updateStatus(user);
     }
     /**
      * 根据id查询用户信息

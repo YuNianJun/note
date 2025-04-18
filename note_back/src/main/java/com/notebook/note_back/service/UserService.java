@@ -19,7 +19,7 @@ public interface UserService {
 
     ResponseData updatePwd(UserVo user);
 
-    ResponseData updateStatus(Integer status);
+    ResponseData updateStatus(UserVo vo);
 
     ResponseData queryByName();
 
