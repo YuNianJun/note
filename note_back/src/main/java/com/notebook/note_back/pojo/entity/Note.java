@@ -32,7 +32,7 @@ public class Note {
     /**
      * 完整内容
      * */
-    private String cover_img;
+    private String coverImg;
 
     /**
      * 所属书架

@@ -1,6 +1,6 @@
 <script setup>
 import {
-  ChatDotRound,
+  Comment,
   Delete
 } from '@element-plus/icons-vue'
 
@@ -203,6 +203,10 @@ const updateCategoryEcho = (row) => {
   noteModel.value.state = row.status;
   // 修改的时候必须传递分类的 id，所以扩展一个 id 属性
   noteModel.value.id = row.id;
+  // 设置 commentModel 的 noteId
+  commentModel.value.noteId = row.id;
+  // 获取评论
+  fetchComments(row.id);
 }
 
 //导入noteManageUpdateService函数
@@ -326,18 +330,74 @@ const uploadImage = async (formData) => {
     }
   })
 }
-
-const comments = ref([]) // 评论区数据模型
-
+import { noteCommentService,noteCommentListService } from '@/api/note.js';
+import { userInfoGetByIdService } from '@/api/user.js';
+const comments = ref([])
+const commentModel = ref({
+  content: '',
+  noteId: noteModel.value.id,
+  userId: tokenStore.userId,
+});
 // 获取评论
 const fetchComments = async (noteId) => {
   try {
-    const response = await axios.get(`/api/comments?noteId=${noteId}`)
-    comments.value = response.data
+    console.log('Fetching comments for noteId:', noteId);
+    const response = await noteCommentListService({ noteId });
+    console.log('Fetched comments:', response.data);
+
+    // 获取评论记录
+    const commentsData = response.data.records;
+
+    // 并行获取每个评论的用户名
+    const commentsWithUsername = await Promise.all(commentsData.map(async (comment) => {
+      try {
+        const userResponse = await userInfoGetByIdService(comment.userId);
+        if (userResponse.code === 200) {
+          comment.username = userResponse.data.username;
+        } else {
+          comment.username = '未知用户';
+        }
+      } catch (error) {
+        console.error('获取用户名失败:', error);
+        comment.username = '未知用户';
+      }
+      return comment;
+    }));
+
+    comments.value = commentsWithUsername;
   } catch (error) {
-    console.error('获取评论失败:', error)
+    console.error('获取评论失败:', error);
   }
 }
+// 添加评论
+const addComment = async () => {
+  if (!commentModel.value.content.trim()) {
+    ElMessage.error('评论内容不能为空');
+    return;
+  }
+
+  try {
+    const response = await noteCommentService({
+      content: commentModel.value.content,
+      noteId: commentModel.value.noteId,
+      userId: commentModel.value.userId,
+    });
+
+    if (response.code === 200) {
+      ElMessage.success('评论成功');
+      // 清空评论输入框
+      commentModel.value.content = '';
+      // 更新评论列表
+      fetchComments(commentModel.value.noteId);
+    } else {
+      ElMessage.error('评论失败: ' + response.msg);
+    }
+  } catch (error) {
+    console.error('评论失败:', error);
+    ElMessage.error('评论失败: ' + error.message);
+  }
+}
+
 </script>
 <template>
   <el-card class="page-container">
@@ -389,7 +449,7 @@ const fetchComments = async (noteId) => {
       </el-table-column>
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
-          <el-button :icon="ChatDotRound" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
+          <el-button :icon="Comment" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
           <el-button :icon="Delete" circle plain type="danger" @click="deleteManage(row)"></el-button>
         </template>
       </el-table-column>
@@ -439,14 +499,23 @@ const fetchComments = async (noteId) => {
       <!-- 评论区 -->
       <div class="comments-section">
         <h3>评论区</h3>
+        <hr />
         <div v-for="comment in comments" :key="comment.id" class="comment-item">
           <img :src="comment.avatar" class="comment-avatar" />
           <div class="comment-content">
-            <span class="comment-username">{{ comment.username }}</span>
-            <span class="comment-time">{{ comment.time }}</span>
+            <div class="comment-header">
+              <span class="comment-username">{{ comment.username }}</span>
+            </div>
             <p class="comment-text">{{ comment.content }}</p>
+            <span class="comment-time">{{ comment.createTime }}</span>
           </div>
         </div>
+      </div>
+
+      <!-- 评论输入框 -->
+      <div class="comment-input-section">
+        <el-input v-model="commentModel.content" placeholder="请输入评论内容" />
+        <el-button type="primary" @click="addComment">提交评论</el-button>
       </div>
     </el-drawer>
   </el-card>
@@ -565,21 +634,37 @@ const fetchComments = async (noteId) => {
 
     .comment-content {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
 
-      .comment-username {
-        font-weight: bold;
-        margin-right: 10px;
-      }
+      .comment-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
 
-      .comment-time {
-        color: #999;
-        font-size: 0.9em;
+        .comment-username {
+          font-weight: bold;
+          margin-right: 10px;
+        }
       }
 
       .comment-text {
-        margin-top: 5px;
+        margin: 0;
+        text-align: left; /* 确保评论内容向左对齐 */
+      }
+
+      .comment-time {
+        font-size: 0.8em; /* 相对较小的字体 */
+        color: #999;
+        align-self: flex-end; /* 将评论时间放在右下角 */
       }
     }
   }
-}
+}.comment-input-section {
+   margin-top: 20px; /* 增加顶部间距 */
+   display: flex;
+   justify-content: space-between; /* 确保按钮和输入框之间有间距 */
+   align-items: center; /* 垂直居中对齐 */
+ }
 </style>

@@ -11,6 +11,7 @@ import com.notebook.note_back.pojo.vo.NoteVo;
 import java.util.List;
 
 public interface NoteService {
+
     ResponseData save(NoteVo note);
 
     ResponseData update(NoteVo note);
@@ -33,14 +34,11 @@ public interface NoteService {
 
     ResponseData putRecycleBin(NoteVo vo);
 
-    ResponseData saveComment(CommentVo comment);
-
     ResponseData shareNote(NoteVo vo);
 
     ResponseData viewSharedNote(NoteShare vo);
 
     ResponseData removeRecycleBin(NoteVo vo);
 
-    ResponseData deleteComment(List<Integer> ids);
-
+    byte[] getCoverImg(String coverImg);
 }

@@ -20,6 +20,11 @@ export const userInfoGetService = () => {
     return request.get(`/user/Info`)
 }
 
+//通过用户id获取用户信息
+export const userInfoGetByIdService = (userId) => {
+    return request.get(`/user/${userId}`)
+}
+
 //修改个人信息
 export const userInfoUpdateService = (userInfo)=>{
     return request.post('/user/update',userInfo)

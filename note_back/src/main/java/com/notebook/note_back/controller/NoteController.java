@@ -1,10 +1,10 @@
 package com.notebook.note_back.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.pojo.dto.NoteDto;
-import com.notebook.note_back.pojo.entity.Comment;
+
 import com.notebook.note_back.pojo.entity.Note;
 import com.notebook.note_back.pojo.entity.NoteShare;
 import com.notebook.note_back.pojo.vo.CommentVo;
@@ -15,9 +15,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.util.Base64;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.io.File;
+
 import java.util.UUID;
 
 @Slf4j
@@ -168,20 +171,61 @@ public class NoteController {
         return noteService.viewSharedNote(vo);
     }
 
-    /**
-     * 新增用户评论
-     * */
-    @PostMapping("/comment/save")
-    public ResponseData saveComment(@RequestBody CommentVo vo) {
-        log.info("用户评论：{}",vo);
-        return noteService.saveComment(vo);
+
+    //直接取值返给前端就行
+    @GetMapping("/getCoverImg")
+    public ResponseData getCrowdInfoById() {
+        log.info("获取封面图片");
+        Note note = new Note();
+        byte[] imageData = noteService.getCoverImg(note.getCoverImg()); // 假设getCoverImg返回的是图片的字节数组
+        String base64Image = Base64.getEncoder().encodeToString(imageData); // 将字节数组转换为Base64编码
+        return ResponseData.success(base64Image);
     }
+
     /**
-     * 删除用户评论
-     * */
-    @PostMapping("/comment/delete/ids")
-    public ResponseData deleteComment(@RequestBody CommentVo vo) {
-        log.info("删除用户评论：{}",vo.getIds());
-        return noteService.deleteComment(vo.getIds());
+     * 将用户上传的信息存入数据库中
+     * 图片以MultipartFile格式上传
+     * @return
+     */
+    @CrossOrigin(origins = {"*", "3600"})  //跨域注解，所有域名都可访问，且cookie的有效期为3600秒
+    @RequestMapping(value = "/pushMessageParam", method = RequestMethod.POST)
+    public int pushMessageBody(@RequestParam String id, MultipartFile file1, MultipartFile file2, MultipartFile file3) throws IOException{//若参数为map或json格式，必须写@RequestBody
+
+        List<MultipartFile> files =new ArrayList<>();//保存用户上传的所有图片，最多三张。
+        files.add(file1);
+        files.add(file2);
+        files.add(file3);
+
+//****给上传的所有jpg、jpeg格式的图片添加头部header（这样取得时候不用解码，直接拿值就行），并进行转码。****
+
+        try {
+
+            List<String> base64EncoderImgs = new ArrayList<>();//存放转码后的图片
+            String header = "";//为转码后的图片添加头部信息
+
+
+            for (int i = 0; i < files.size(); i++) {//遍历所有文件
+                if (files.get(i) != null) {
+                    if (!files.get(i).getOriginalFilename().endsWith(".jpg") && !files.get(i).getOriginalFilename().endsWith(".jpeg")) {
+                        System.out.println("文件格式非法！");
+                    } else if ("jpg".equals(files.get(i).getOriginalFilename())) {//files.get(i).getOriginalFilename() 获取文件的扩展名.jpg .jpeg
+                        header = "data:image/jpg;base64,";
+                    } else if ("jpeg".equals(files.get(i).getOriginalFilename())) {
+                        header = "data:image/jpeg;base64,";
+                    }
+                    base64EncoderImgs.add(header + Base64.getEncoder().encodeToString(files.get(i).getBytes()));              } else {
+                    base64EncoderImgs.add(null);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+//        subMessageService.saveSubMessage(new SubMessage(id, base64EncoderImgs.get(0),
+//                base64EncoderImgs.get(1), base64EncoderImgs.get(2));
+        System.out.println("用户消息已存入数据库！");
+
+        return 0;
     }
 }

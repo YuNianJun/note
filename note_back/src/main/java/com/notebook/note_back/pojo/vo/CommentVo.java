@@ -7,6 +7,9 @@ import java.util.List;
 
 @Data
 public class CommentVo {
+
+    private Integer page = 1;
+    private Integer size = 10;
     private Integer id;
     private Integer userId;
     private Integer noteId;

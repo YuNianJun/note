@@ -31,6 +31,14 @@ export const noteManageUpdateService = (noteModel) => {
     return request.post('/note/update',noteModel)
 }
 
+//笔记分享
+export const noteShareService = (noteModel) => {
+    return request.post('/note/shareNote',noteModel)
+}
+//访问分享笔记
+export const noteShareVisitService = (noteModel) => {
+    return request.post('/note/viewSharedNote',noteModel)
+}
 //笔记放入回收站
 export const noteManageDeleteService = (ids) => {
     return request.post('/note/putRecycleBin', { ids });
@@ -48,15 +56,15 @@ export const recycleBinListService = (params) => {
 export const recycleBinRecoverService = (ids) => {
     return request.post('/note/recover', { ids });
 }
-//笔记评论
+//新增笔记评论
 export const noteCommentService = (params) => {
-    return request.post('/note/comment', { params: params });
+    return request.post('/comment/save', params);
 }
 //笔记评论列表
 export const noteCommentListService = (params) => {
-    return request.post('/note/comment/list', { params: params });
+    return request.post('/comment/page', params);
 }
 //笔记评论删除
 export const noteCommentDeleteService = (ids) => {
-    return request.post('/note/comment/delete', { ids });
+    return request.post('/comment/delete/ids', { ids });
 }

@@ -28,7 +28,7 @@ public class NoteDto {
     /**
      * 完整内容
      * */
-    private String cover_img;
+    private String coverImg;
 
     private Integer categoryId;
 

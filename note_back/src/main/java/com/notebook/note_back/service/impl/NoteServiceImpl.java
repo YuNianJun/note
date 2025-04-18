@@ -5,18 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.common.utils.ThreadLocalUtil;
-import com.notebook.note_back.mapper.CommentMapper;
 import com.notebook.note_back.mapper.NoteMapper;
 import com.notebook.note_back.mapper.NoteShareMapper;
 import com.notebook.note_back.pojo.dto.NoteDto;
-import com.notebook.note_back.pojo.entity.Comment;
 import com.notebook.note_back.pojo.entity.Note;
 import com.notebook.note_back.pojo.entity.NoteShare;
-import com.notebook.note_back.pojo.vo.CommentVo;
 import com.notebook.note_back.pojo.vo.NoteVo;
 import com.notebook.note_back.service.NoteService;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,7 +31,7 @@ import java.util.UUID;
 public class NoteServiceImpl implements NoteService {
 
     private final NoteMapper noteMapper;
-    private final CommentMapper commentMapper;
+
     private final NoteShareMapper noteShareMapper;
 
     @Value("${note.share}")
@@ -169,25 +165,13 @@ public class NoteServiceImpl implements NoteService {
         return ResponseData.success(noteMapper.update(note, wrapper));
     }
 
-    @Override
-    public ResponseData deleteComment(List<Integer> ids) {
 
-        // 删除评论
-        return ResponseData.success(commentMapper.deleteByIds(ids));
-    }
 
     @Override
-    public ResponseData saveComment(CommentVo vo) {
-        Map<String, Object> map = ThreadLocalUtil.get();
-        Integer userId = (Integer) map.get("id");
-        Comment comment = new Comment();
-        comment.setNoteId(vo.getNoteId());
-        comment.setUserId(userId);
-        comment.setContent(vo.getContent());
-        comment.setCreateTime(LocalDateTime.now());
-        // 保存评论
-        return ResponseData.success(commentMapper.insert(comment));
+    public byte[] getCoverImg(String coverImg) {
+        return null;
     }
+
 
     @Override
     public ResponseData shareNote(NoteVo vo) {

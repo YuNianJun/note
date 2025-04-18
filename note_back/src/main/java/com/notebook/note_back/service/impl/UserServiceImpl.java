@@ -158,7 +158,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseData getById(Integer id) {
-        return ResponseData.success(userMapper.selectById(id));
+        User user = userMapper.selectById(id);
+        user.setPassword("************");
+        return ResponseData.success(user);
     }
 
     @Override

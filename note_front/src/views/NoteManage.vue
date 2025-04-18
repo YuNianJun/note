@@ -1,7 +1,8 @@
 <script setup>
 import {
   Edit,
-  Delete
+  Delete,
+  Share
 } from '@element-plus/icons-vue'
 
 import {onMounted, ref} from 'vue'
@@ -325,6 +326,23 @@ const uploadImage = async (formData) => {
     }
   })
 }
+const shareNote = (row) => {
+  // 假设分享链接的格式为 /note/detail?id=noteId
+  shareLink.value = `${window.location.origin}/note/detail?id=${row.id}`;
+  shareDialogVisible.value = true;
+};
+
+// 复制分享链接
+const copyShareLink = () => {
+  navigator.clipboard.writeText(shareLink.value)
+      .then(() => {
+        ElMessage.success('分享链接已复制到剪贴板');
+      })
+      .catch(err => {
+        console.error('复制失败:', err);
+        ElMessage.error('复制失败');
+      });
+};
 
 </script>
 <template>
@@ -365,7 +383,7 @@ const uploadImage = async (formData) => {
     </el-form>
     <!-- 笔记列表 -->
     <el-table :data="notes" style="width: 100%">
-      <el-table-column label="笔记标题" width="400" prop="title"></el-table-column>
+      <el-table-column label="笔记标题" width="200" prop="title"></el-table-column>
       <el-table-column label="分类" prop="categoryName"></el-table-column>
       <el-table-column label="标签" prop="tags"></el-table-column>
       <el-table-column label="创建时间" prop="createTime"></el-table-column>
@@ -375,10 +393,11 @@ const uploadImage = async (formData) => {
           {{ row.status === 1 ? '已发布' : '草稿' }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="100">
+      <el-table-column label="操作" width="150">
         <template #default="{ row }">
           <el-button :icon="Edit" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
           <el-button :icon="Delete" circle plain type="danger" @click="deleteManage(row)"></el-button>
+          <el-button :icon="Share" circle plain type="success" @click="shareNote(row)"></el-button>
         </template>
       </el-table-column>
       <template #empty>
@@ -389,6 +408,14 @@ const uploadImage = async (formData) => {
     <el-pagination v-model:current-page="pageNum" v-model:page-size="pageSize" :page-sizes="[3, 5 ,10, 15]"
                    layout="jumper, total, sizes, prev, pager, next" background :total="total" @size-change="onSizeChange"
                    @current-change="onCurrentChange" style="margin-top: 20px; justify-content: flex-end" />
+    <!-- 分享对话框 -->
+    <el-dialog v-model="shareDialogVisible" title="分享笔记" width="30%">
+      <div>
+        <p>分享链接:</p>
+        <el-input v-model="shareLink" readonly></el-input>
+        <el-button type="primary" @click="copyShareLink">复制链接</el-button>
+      </div>
+    </el-dialog>
     <!-- 抽屉 -->
     <el-drawer v-model="visibleDrawer" :title="titles" direction="rtl" size="50%">
       <!-- 添加笔记表单 -->
