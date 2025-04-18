@@ -407,6 +407,9 @@ const validateShareLink = async (link) => {
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="笔记标签：">
+        <el-input v-model="noteModel.tags" placeholder="请输入标签"></el-input>
+      </el-form-item>
       <el-form-item label="笔记状态：">
         <el-select v-model="status" placeholder="请选择">
           <el-option label="已公开" value="已公开"></el-option>

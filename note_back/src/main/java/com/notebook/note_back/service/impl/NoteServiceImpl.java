@@ -5,12 +5,16 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.common.utils.ThreadLocalUtil;
+import com.notebook.note_back.mapper.CategoryMapper;
 import com.notebook.note_back.mapper.NoteMapper;
 import com.notebook.note_back.mapper.NoteShareMapper;
+import com.notebook.note_back.pojo.dto.CategoryDto;
 import com.notebook.note_back.pojo.dto.NoteDto;
+import com.notebook.note_back.pojo.entity.Category;
 import com.notebook.note_back.pojo.entity.Note;
 import com.notebook.note_back.pojo.entity.NoteShare;
 import com.notebook.note_back.pojo.vo.NoteVo;
+import com.notebook.note_back.service.CategoryService;
 import com.notebook.note_back.service.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,6 +39,8 @@ public class NoteServiceImpl implements NoteService {
     private final NoteMapper noteMapper;
 
     private final NoteShareMapper noteShareMapper;
+
+    private final CategoryMapper categoryMapper;
 
     @Value("${note.share}")
     private String noteShareLink;
@@ -171,6 +178,59 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public byte[] getCoverImg(String coverImg) {
         return null;
+    }
+
+    @Override
+    public ResponseData pageOpen(NoteVo vo) {
+        // 分页查询 公开 笔记（核心分页逻辑）
+        Page<Note> notePage = new Page<>(vo.getPage(), vo.getSize());
+        QueryWrapper<Note> noteWrapper = new QueryWrapper<>();
+        noteWrapper.isNull("delete_time");
+        noteWrapper.eq("status", 1);
+        if (vo.getStatus() != null) {
+            noteWrapper.eq("status", vo.getStatus());
+        }
+        noteMapper.selectPage(notePage, noteWrapper);
+
+        if (notePage.getRecords().isEmpty()) {
+            return ResponseData.success(notePage); // 直接返回空分页
+        }
+
+        // 获取分类ID列表（用于关联分类信息）
+        List<Integer> categoryIds = notePage.getRecords().stream()
+                .map(Note::getCategoryId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 批量查询分类信息
+        QueryWrapper<Category> categoryWrapper = new QueryWrapper<>();
+        categoryWrapper.in("id", categoryIds);
+        List<Category> categories = categoryMapper.selectList(categoryWrapper);
+        Map<Integer, Category> categoryMap = categories.stream()
+                .collect(Collectors.toMap(Category::getId, c -> c));
+
+        // 按分类ID分组笔记
+        Map<Integer, List<Note>> notesByCategory = notePage.getRecords().stream()
+                .collect(Collectors.groupingBy(Note::getCategoryId));
+
+        // 组装DTO分页结果
+        List<CategoryDto> dtoList = notesByCategory.entrySet().stream().map(entry -> {
+            Category category = categoryMap.get(entry.getKey());
+            CategoryDto dto = new CategoryDto();
+            BeanUtils.copyProperties(category, dto);
+            dto.setNotes(entry.getValue());
+            return dto;
+        }).collect(Collectors.toList());
+
+        // 构造分页对象（总记录数为笔记总数）
+        Page<CategoryDto> resultPage = new Page<>(
+                notePage.getCurrent(),
+                notePage.getSize(),
+                notePage.getTotal()
+        );
+        resultPage.setRecords(dtoList);
+
+        return ResponseData.success(resultPage);
     }
 
 

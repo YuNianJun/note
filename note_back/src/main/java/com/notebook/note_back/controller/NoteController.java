@@ -48,12 +48,20 @@ public class NoteController {
         log.info("更新笔记：{}",note);
         return noteService.update(note);
     }
+    /**
+     * 分页查询公开笔记
+     * */
+    @PostMapping("/pageOpen")
+    public ResponseData pageOpen(@RequestBody NoteVo note) {
+        log.info("分页查询公开笔记：{}",note);
+        return noteService.pageOpen(note);
+    }
 
     /**
      * 分页查询回收站中的笔记
      * */
     @PostMapping("/page")
-    public ResponseData page(NoteVo note) {
+    public ResponseData page(@RequestBody NoteVo note) {
         log.info("分页查询回收站中的笔记：{}",note);
         return noteService.pageQuery(note);
     }

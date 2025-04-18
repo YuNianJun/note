@@ -42,4 +42,7 @@ public interface NoteService {
     ResponseData removeRecycleBin(NoteVo vo);
 
     byte[] getCoverImg(String coverImg);
+
+    ResponseData pageOpen(NoteVo note);
+
 }

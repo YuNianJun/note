@@ -93,7 +93,7 @@ onMounted(async () => {
 getcategoryList();
 
 //笔记列表查询
-import { noteListService } from '@/api/note.js'
+import { notePublicListService } from '@/api/note.js'
 // 修改后的获取笔记方法
 const getnotes = async () => {
   try {
@@ -107,7 +107,7 @@ const getnotes = async () => {
       status: state.value ? statusMap[state.value] : null
     };
 
-    let result = await noteListService(params);
+    let result = await notePublicListService(params);
     console.log('完整响应:', result);
 
     // 修改判断条件

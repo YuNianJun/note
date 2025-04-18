@@ -20,7 +20,7 @@ export const categoryUpdateService = (categoryModel) => {
 }
 //笔记列表查询
 export const noteListService = (params) => {
-    return request.post('/category/page', { params: params });
+    return request.post('/category/page', params);
 }
 //添加笔记
 export const noteAddService = (noteModel)=>{
@@ -50,7 +50,7 @@ export const recycleBinDeleteService = (ids) => {
 }
 //回收站查询笔记
 export const recycleBinListService = (params) => {
-    return request.post('/note/page', { params: params });
+    return request.post('/note/page', params);
 }
 //回收站笔记恢复
 export const recycleBinRecoverService = (ids) => {
@@ -67,4 +67,8 @@ export const noteCommentListService = (params) => {
 //笔记评论删除
 export const noteCommentDeleteService = (ids) => {
     return request.post('/comment/delete/ids', { ids });
+}
+//查询公开笔记
+export const notePublicListService = (params) => {
+    return request.post('/note/pageOpen', params);
 }

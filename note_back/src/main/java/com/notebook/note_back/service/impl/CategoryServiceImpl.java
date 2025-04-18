@@ -60,12 +60,13 @@ public class CategoryServiceImpl implements CategoryService {
         if (vo.getStatus() != null) {
             noteWrapper.eq("status", vo.getStatus());
         }
+        if (vo.getTags() != null){
+             noteWrapper.like("tags", vo.getTags());
+        }
         noteMapper.selectPage(notePage, noteWrapper);
-
         if (notePage.getRecords().isEmpty()) {
             return ResponseData.success(notePage); // 直接返回空分页
         }
-
         // 获取分类ID列表（用于关联分类信息）
         List<Integer> categoryIds = notePage.getRecords().stream()
                 .map(Note::getCategoryId)

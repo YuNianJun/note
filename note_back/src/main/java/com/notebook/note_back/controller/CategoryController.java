@@ -27,7 +27,7 @@ public class CategoryController {
         return categoryService.update(vo);
     }
     @PostMapping("/page")
-    public ResponseData page(CategoryVo vo) {
+    public ResponseData page(@RequestBody CategoryVo vo) {
         log.info("分页查询分类：{}",vo);
         return categoryService.page(vo);
     }
