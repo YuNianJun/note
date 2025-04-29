@@ -330,7 +330,7 @@ const uploadImage = async (formData) => {
     }
   })
 }
-import { noteCommentService,noteCommentListService } from '@/api/note.js';
+import { noteCommentService,noteCommentListService,noteCommentDeleteService } from '@/api/note.js';
 import { userInfoGetByIdService } from '@/api/user.js';
 const comments = ref([])
 const commentModel = ref({
@@ -398,6 +398,18 @@ const addComment = async () => {
   }
 }
 
+const deleteComment = async (commentId) => {
+  try {
+    await noteCommentDeleteService(commentId);
+    // 删除成功后，重新获取评论列表
+    fetchComments(noteModel.value.id);
+    ElMessage.success('评论删除成功');
+  } catch (error) {
+    console.error('删除评论失败:', error);
+    ElMessage.error('删除评论失败');
+  }
+};
+
 </script>
 <template>
   <el-card class="page-container">
@@ -450,7 +462,6 @@ const addComment = async () => {
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
           <el-button :icon="Comment" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
-          <el-button :icon="Delete" circle plain type="danger" @click="deleteManage(row)"></el-button>
         </template>
       </el-table-column>
       <template #empty>
@@ -507,7 +518,12 @@ const addComment = async () => {
               <span class="comment-username">{{ comment.username }}</span>
             </div>
             <p class="comment-text">{{ comment.content }}</p>
-            <span class="comment-time">{{ comment.createTime }}</span>
+            <div class="comment-footer">
+              <span class="comment-time">{{ comment.createTime }}</span>
+              <el-icon class="delete-icon" @click="deleteComment(comment.id)">
+                <Delete />
+              </el-icon>
+            </div>
           </div>
         </div>
       </div>
@@ -654,10 +670,21 @@ const addComment = async () => {
         text-align: left; /* 确保评论内容向左对齐 */
       }
 
-      .comment-time {
-        font-size: 0.8em; /* 相对较小的字体 */
-        color: #999;
-        align-self: flex-end; /* 将评论时间放在右下角 */
+      .comment-footer {
+        display: flex;
+        align-items: center; /* 确保时间和删除图标垂直居中 */
+        justify-content: flex-end; /* 将时间和删除图标靠右对齐 */
+        margin-top: 5px; /* 增加顶部间距 */
+
+        .comment-time {
+          font-size: 0.8em; /* 相对较小的字体 */
+          color: #999;
+          margin-right: 8px; /* 增加右侧间距 */
+        }
+
+        .delete-icon {
+          cursor: pointer;
+        }
       }
     }
   }

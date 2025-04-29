@@ -119,7 +119,7 @@ import {categoryDeleteService} from '@/api/note.js'
 //删除分类
 const deleteCategory = (row) => {
   ElMessageBox.confirm(
-      '确认是否删除该分类信息？',
+      '确认是否删除该分类信息？这将会永久删除该分类下的所有笔记，请谨慎操作！',
       '提示',
       {
         confirmButtonText: '确认',

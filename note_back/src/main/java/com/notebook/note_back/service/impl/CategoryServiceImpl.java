@@ -19,10 +19,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 @Slf4j
 @Service
@@ -94,11 +96,14 @@ public class CategoryServiceImpl implements CategoryService {
         // 组装DTO分页结果
         List<CategoryDto> dtoList = notesByCategory.entrySet().stream().map(entry -> {
             Category category = categoryMap.get(entry.getKey());
+            if (category == null) {
+                return null; // 后续需要过滤null值
+            }
             CategoryDto dto = new CategoryDto();
             BeanUtils.copyProperties(category, dto);
             dto.setNotes(entry.getValue());
             return dto;
-        }).collect(Collectors.toList());
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
         // 构造分页对象（总记录数为笔记总数）
         Page<CategoryDto> resultPage = new Page<>(
@@ -112,12 +117,19 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public ResponseData delete(Integer id) {
+        QueryWrapper<Note> noteWrapper = new QueryWrapper<>();
+        noteWrapper.eq("category_id", id);
+        noteMapper.delete(noteWrapper);
         return ResponseData.success(categoryMapper.deleteById(id));
     }
 
     @Override
     public ResponseData deleteIds(Integer[] ids) {
+        QueryWrapper<Note> noteWrapper = new QueryWrapper<>();
+        noteWrapper.in("category_id", ids);
+        noteMapper.deleteByIds(Collections.singleton(noteWrapper));
         return ResponseData.success(categoryMapper.deleteBatchIds(Collections.singleton(ids)));
     }
 

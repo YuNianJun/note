@@ -172,7 +172,7 @@ import {noteAddService} from '@/api/note.js'
 const addnote=async (status)=>{
   noteModel.value.status = status === '已公开' ? 1 : 0;
   //由于本地文件存储 这里测试使用固定的网络url 如果有网络服务器存储那就可以不需要这个
-  noteModel.value.coverImg = 'https://ts1.cn.mm.bing.net/th/id/R-C.4bdc8f7f0e0201905fe400fb5156b7c7?rik=MVFo1SU7cYgFqg&riu=http%3a%2f%2fwww.spasvo.com%2fckfinder%2fuserfiles%2fimages%2f2020061536450116.jpg&ehk=r7Pp%2fX3wIOhP%2fcuW0ITLAHeD0sZPNatsyfpC3XWOM0s%3d&risl=&pid=ImgRaw&r=0'
+  // noteModel.value.coverImg = 'https://ts1.cn.mm.bing.net/th/id/R-C.4bdc8f7f0e0201905fe400fb5156b7c7?rik=MVFo1SU7cYgFqg&riu=http%3a%2f%2fwww.spasvo.com%2fckfinder%2fuserfiles%2fimages%2f2020061536450116.jpg&ehk=r7Pp%2fX3wIOhP%2fcuW0ITLAHeD0sZPNatsyfpC3XWOM0s%3d&risl=&pid=ImgRaw&r=0'
   let result = await noteAddService(noteModel.value);
   if(result.code === 200) {
     //成功
@@ -484,8 +484,8 @@ const validateShareLink = async (link) => {
                      action="/api/upload" name = 'file' :headers="{'Authorization':tokenStore.token}" :on-success="uploadSuccess">
 <!--            点击上传由于这里练习项目没有网络服务器 数据是上传到本地的所以浏览器会拦截本地文件加载导致不能造成数据回显，但是目录下是有图片成功上传到的。-->
 <!--            后续继续完成项目建议修改src中的值为模拟的固定网络图片url地址-->
-<!--            <img v-if="noteModel.coverImg" :src="noteModel.coverImg" class="avatar" />-->
-            <img v-if="noteModel.coverImg" :src="'https://ts1.cn.mm.bing.net/th/id/R-C.4bdc8f7f0e0201905fe400fb5156b7c7?rik=MVFo1SU7cYgFqg&riu=http%3a%2f%2fwww.spasvo.com%2fckfinder%2fuserfiles%2fimages%2f2020061536450116.jpg&ehk=r7Pp%2fX3wIOhP%2fcuW0ITLAHeD0sZPNatsyfpC3XWOM0s%3d&risl=&pid=ImgRaw&r=0'" class="avatar" />
+            <img v-if="noteModel.coverImg" :src="noteModel.coverImg" class="avatar" />
+<!--            <img v-if="noteModel.coverImg" :src="'https://ts1.cn.mm.bing.net/th/id/R-C.4bdc8f7f0e0201905fe400fb5156b7c7?rik=MVFo1SU7cYgFqg&riu=http%3a%2f%2fwww.spasvo.com%2fckfinder%2fuserfiles%2fimages%2f2020061536450116.jpg&ehk=r7Pp%2fX3wIOhP%2fcuW0ITLAHeD0sZPNatsyfpC3XWOM0s%3d&risl=&pid=ImgRaw&r=0'" class="avatar" />-->
             <el-icon v-else class="avatar-uploader-icon">
               <Plus />
             </el-icon>
