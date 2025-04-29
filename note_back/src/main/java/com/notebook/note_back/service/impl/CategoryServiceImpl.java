@@ -7,9 +7,11 @@ import com.notebook.note_back.common.response.ResponseData;
 import com.notebook.note_back.common.utils.ThreadLocalUtil;
 import com.notebook.note_back.mapper.CategoryMapper;
 import com.notebook.note_back.mapper.NoteMapper;
+import com.notebook.note_back.mapper.UserMapper;
 import com.notebook.note_back.pojo.dto.CategoryDto;
 import com.notebook.note_back.pojo.entity.Category;
 import com.notebook.note_back.pojo.entity.Note;
+import com.notebook.note_back.pojo.entity.User;
 import com.notebook.note_back.pojo.vo.CategoryVo;
 import com.notebook.note_back.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,8 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     private final NoteMapper noteMapper;
+    private final UserMapper userMapper;
+
     @Override
     public ResponseData save(CategoryVo vo) {
         Map<String, Object> map = ThreadLocalUtil.get();
@@ -54,8 +58,11 @@ public class CategoryServiceImpl implements CategoryService {
         Integer userId = (Integer) map.get("id");
         // 分页查询笔记（核心分页逻辑）
         Page<Note> notePage = new Page<>(vo.getPage(), vo.getSize());
+        User user = userMapper.selectById(userId);
         QueryWrapper<Note> noteWrapper = new QueryWrapper<>();
-        noteWrapper.eq("user_id", userId);
+        if (user.getPermission() <= 2) {
+            noteWrapper.eq("user_id", userId);
+        }
         noteWrapper.isNull("delete_time");
         if (vo.getStatus() != null) {
             noteWrapper.eq("status", vo.getStatus());

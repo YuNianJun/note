@@ -8,11 +8,13 @@ import com.notebook.note_back.common.utils.ThreadLocalUtil;
 import com.notebook.note_back.mapper.CategoryMapper;
 import com.notebook.note_back.mapper.NoteMapper;
 import com.notebook.note_back.mapper.NoteShareMapper;
+import com.notebook.note_back.mapper.UserMapper;
 import com.notebook.note_back.pojo.dto.CategoryDto;
 import com.notebook.note_back.pojo.dto.NoteDto;
 import com.notebook.note_back.pojo.entity.Category;
 import com.notebook.note_back.pojo.entity.Note;
 import com.notebook.note_back.pojo.entity.NoteShare;
+import com.notebook.note_back.pojo.entity.User;
 import com.notebook.note_back.pojo.vo.NoteVo;
 import com.notebook.note_back.service.CategoryService;
 import com.notebook.note_back.service.NoteService;
@@ -41,6 +43,7 @@ public class NoteServiceImpl implements NoteService {
     private final NoteShareMapper noteShareMapper;
 
     private final CategoryMapper categoryMapper;
+    private final UserMapper userMapper;
 
     @Value("${note.share}")
     private String noteShareLink;
@@ -70,7 +73,10 @@ public class NoteServiceImpl implements NoteService {
         // 分页查询笔记（核心分页逻辑）
         Page<Note> notePage = new Page<>(vo.getPage(), vo.getSize());
         QueryWrapper<Note> noteWrapper = new QueryWrapper<>();
-        noteWrapper.eq("user_id", userId);
+        User user = userMapper.selectById(userId);
+        if (user.getPermission() <= 2) {
+            noteWrapper.eq("user_id", userId);
+        }
         noteWrapper.isNotNull("delete_time"); // 查询进入回收站的笔记
         if (null != vo.getTitle() && !vo.getTitle().isEmpty()) {
             noteWrapper.eq("title", vo.getTitle());
