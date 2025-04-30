@@ -45,8 +45,8 @@ export const userPageService = () =>{
     return request.post('user/page')
 }
 
-export const userUpdateStatusService = (status) => {
-    return request.post('/user/status',{status})
+export const userUpdateStatusService = (id,status) => {
+    return request.post('/user/status',{id,status})
 }
 export const userDeleteService = (userId) => {
     return request.post('/user/delete',{userId})

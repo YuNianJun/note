@@ -15,5 +15,5 @@ public class CategoryVo {
     private String synopsis;         // 书架简介
     private List<Note> notes;        // 笔记列表
     private Integer status;          // 笔记状态
-    private Integer tags;            // 笔记标签
+    private String tags;            // 笔记标签
 }

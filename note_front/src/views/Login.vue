@@ -74,8 +74,12 @@ const login = async () => {
       ElMessage.success('登录成功')
       // 加登录成功后的处理
       tokenStore.setToken(res.data)
+      tokenStore.setPermission(res.data.permission);
+      tokenStore.setUserId(res.data.id)
       localStorage.setItem('token', res.data);
       localStorage.setItem('username', loginData.value.username)
+      localStorage.setItem('id', res.data.id)
+      localStorage.setItem('permission', res.data.permission)
       console.log('跳转到主页')
       router.push('/')
     }

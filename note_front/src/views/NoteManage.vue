@@ -92,7 +92,15 @@ onMounted(async () => {
   await getnotes();     // 再加载笔记
 });
 getcategoryList();
-
+//添加表单数据模型
+const noteModel = ref({
+  title: '',
+  categoryId: '',
+  coverImg: '',
+  content: '',
+  tags: '',
+  status: ''
+});
 //笔记列表查询
 import { noteListService } from '@/api/note.js'
 // 修改后的获取笔记方法
@@ -105,7 +113,8 @@ const getnotes = async () => {
       page: pageNum.value,
       size: pageSize.value,
       categoryId: categoryId.value || null,
-      status: status.value ? statusMap[status.value] : null
+      status: status.value ? statusMap[status.value] : null,
+      tags: noteModel.value.tags || null
     };
 
     let result = await noteListService(params);
@@ -145,15 +154,7 @@ getnotes();
 import {Plus} from '@element-plus/icons-vue'
 //控制抽屉是否显示
 const visibleDrawer = ref(false)
-//添加表单数据模型
-const noteModel = ref({
-  title: '',
-  categoryId: '',
-  coverImg: '',
-  content: '',
-  tags: '',
-  status: ''
-});
+
 //导入token
 import { useTokenStore } from '@/stores/token.js'
 const tokenStore = useTokenStore();
@@ -418,8 +419,7 @@ const validateShareLink = async (link) => {
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="getnotes()">搜索</el-button>
-        <el-button @click="categoryId='';status='';getnotes()">重置</el-button>
-      </el-form-item>
+        <el-button @click="categoryId='';status='';noteModel.tags='';getnotes()">重置</el-button>      </el-form-item>
     </el-form>
     <!-- 笔记列表 -->
     <el-table :data="notes" style="width: 100%">

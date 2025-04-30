@@ -91,7 +91,16 @@ onMounted(async () => {
   await getnotes();     // 再加载笔记
 });
 getcategoryList();
-
+//添加表单数据模型
+const noteModel = ref({
+  // id: '',
+  title: '',
+  categoryId: '',
+  coverImg: '',
+  content: '',
+  tags: '',
+  status: ''
+});
 //笔记列表查询
 import { notePublicListService } from '@/api/note.js'
 // 修改后的获取笔记方法
@@ -104,7 +113,8 @@ const getnotes = async () => {
       page: pageNum.value,
       size: pageSize.value,
       categoryId: categoryId.value || null,
-      status: state.value ? statusMap[state.value] : null
+      status: state.value ? statusMap[state.value] : null,
+      tags: noteModel.value.tags || null
     };
 
     let result = await notePublicListService(params);
@@ -144,15 +154,7 @@ getnotes();
 import {Plus} from '@element-plus/icons-vue'
 //控制抽屉是否显示
 const visibleDrawer = ref(false)
-//添加表单数据模型
-const noteModel = ref({
-  title: '',
-  categoryId: '',
-  coverImg: '',
-  content: '',
-  tags: '',
-  status: ''
-});
+
 //导入token
 import { useTokenStore } from '@/stores/token.js'
 const tokenStore = useTokenStore();
@@ -337,25 +339,23 @@ const commentModel = ref({
   content: '',
   noteId: noteModel.value.id,
   userId: tokenStore.userId,
+  permission: localStorage.getItem('permission'),
 });
 // 获取评论
 const fetchComments = async (noteId) => {
   try {
-    console.log('Fetching comments for noteId:', noteId);
     const response = await noteCommentListService({ noteId });
-    console.log('Fetched comments:', response.data);
-
-    // 获取评论记录
     const commentsData = response.data.records;
 
-    // 并行获取每个评论的用户名
     const commentsWithUsername = await Promise.all(commentsData.map(async (comment) => {
       try {
         const userResponse = await userInfoGetByIdService(comment.userId);
         if (userResponse.code === 200) {
           comment.username = userResponse.data.username;
+          comment.permission = userResponse.data.permission;
         } else {
           comment.username = '未知用户';
+          comment.permission = 0;
         }
       } catch (error) {
         console.error('获取用户名失败:', error);
@@ -398,18 +398,23 @@ const addComment = async () => {
   }
 }
 
-const deleteComment = async (commentId) => {
+// 删除评论
+const deleteComment = async (commentId, commentUserId) => {
   try {
-    await noteCommentDeleteService(commentId);
-    // 删除成功后，重新获取评论列表
-    fetchComments(noteModel.value.id);
-    ElMessage.success('评论删除成功');
+    // 检查当前用户是否有权限删除评论
+    if (commentModel.value.userId === commentUserId || commentModel.value.permission >= 2) {
+      await noteCommentDeleteService([commentId]);
+      // 删除成功后，重新获取评论列表
+      fetchComments(noteModel.value.id);
+      ElMessage.success('评论删除成功');
+    } else {
+      ElMessage.error('您没有权限删除此评论');
+    }
   } catch (error) {
     console.error('删除评论失败:', error);
     ElMessage.error('删除评论失败');
   }
 };
-
 </script>
 <template>
   <el-card class="page-container">
@@ -436,15 +441,12 @@ const deleteComment = async (commentId) => {
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="公开状态：">
-        <el-select v-model="state" placeholder="请选择">
-          <el-option label="已公开" value="已公开"></el-option>
-          <el-option label="私有" value="私有"></el-option>
-        </el-select>
+      <el-form-item label="笔记标签：">
+        <el-input v-model="noteModel.tags" placeholder="请输入标签"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="getnotes()">搜索</el-button>
-        <el-button @click="categoryId='';state='';getnotes()">重置</el-button>
+        <el-button @click="categoryId='';state='';noteModel.tags='';getnotes()">重置</el-button>
       </el-form-item>
     </el-form>
     <!-- 笔记列表 -->
@@ -520,7 +522,11 @@ const deleteComment = async (commentId) => {
             <p class="comment-text">{{ comment.content }}</p>
             <div class="comment-footer">
               <span class="comment-time">{{ comment.createTime }}</span>
-              <el-icon class="delete-icon" @click="deleteComment(comment.id)">
+              <el-icon
+                  v-if="commentModel.permission >= 2 || comment.userId === commentModel.userId"
+                  class="delete-icon"
+                  @click="deleteComment(comment.id, comment.userId)"
+              >
                 <Delete />
               </el-icon>
             </div>
