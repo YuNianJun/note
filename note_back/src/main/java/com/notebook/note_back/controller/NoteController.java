@@ -238,7 +238,9 @@ public class NoteController {
 
         return 0;
     }
-
+    /**
+     * 文件上传
+     * */
     @PostMapping("/upload")
     public String handleFileUpload(@RequestParam("file") MultipartFile file) {
         if (!file.isEmpty()) {
