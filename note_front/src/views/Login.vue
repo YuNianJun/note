@@ -79,6 +79,8 @@ const login = async () => {
       localStorage.setItem('username', loginData.value.username)
       localStorage.setItem('id', res.data.id)
       console.log('跳转到主页')
+      console.log("tokenStore:{}", tokenStore)
+      console.log("localStorage:{}",localStorage)
       router.push('/')
     }
   } catch (error) {

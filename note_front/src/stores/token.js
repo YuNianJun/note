@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
+import { userInfoGetService } from '@/api/user.js';
 
 export const useTokenStore = defineStore('token', {
     state: () => ({
-        token: localStorage.getItem('token') || '',
-        permission: parseInt(localStorage.getItem('permissions')) || 0,
-        userId: localStorage.getItem('userId') || null
+        token: (userInfoGetService.info || {}).token || localStorage.getItem('token') || '',
+        permission: parseInt((userInfoGetService.info || {}).permissions || localStorage.getItem('permissions')) || 0,
+        userId: (userInfoGetService.info || {}).userId || localStorage.getItem('userId') || null
     }),
     actions: {
         setToken(token) {

@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -149,17 +151,17 @@ public class NoteController {
     /**
      * 文件上传
      * */
-    @PostMapping("/upload")
-    public ResponseData upload(MultipartFile file) throws IOException {
-        //把文件内容存储到本地磁盘中
-        String Filename = file.getOriginalFilename(); //自动获取文件名
-        //保证文件名唯一 防止被覆盖
-        String filename = UUID.randomUUID() + (Filename != null ? Filename.substring(Filename.lastIndexOf(".")) : null);
-        //文件传输
-        file.transferTo( new File("E:\\"+filename));
-        //返回
-        return ResponseData.success("url访问地址……");
-    }
+//    @PostMapping("/upload")
+//    public ResponseData upload(MultipartFile file) throws IOException {
+//        //把文件内容存储到本地磁盘中
+//        String Filename = file.getOriginalFilename(); //自动获取文件名
+//        //保证文件名唯一 防止被覆盖
+//        String filename = UUID.randomUUID() + (Filename != null ? Filename.substring(Filename.lastIndexOf(".")) : null);
+//        //文件传输
+//        file.transferTo( new File("E:\\"+filename));
+//        //返回
+//        return ResponseData.success("url访问地址……");
+//    }
 
     /**
      * 笔记分享
@@ -235,5 +237,23 @@ public class NoteController {
         System.out.println("用户消息已存入数据库！");
 
         return 0;
+    }
+
+    @PostMapping("/upload")
+    public String handleFileUpload(@RequestParam("file") MultipartFile file) {
+        if (!file.isEmpty()) {
+            try {
+                // 保存文件，这里只是简单示例，实际应用中需要处理文件名冲突等问题
+                byte[] bytes = file.getBytes();
+                java.nio.file.Path path = Paths.get("E:\\" + file.getOriginalFilename());
+                Files.write(path, bytes);
+                return "You successfully uploaded " + file.getOriginalFilename() + "!";
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "Failed to upload " + file.getOriginalFilename() + "!";
+            }
+        } else {
+            return "Please select a file to upload.";
+        }
     }
 }

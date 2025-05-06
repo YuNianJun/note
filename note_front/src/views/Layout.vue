@@ -40,6 +40,9 @@ const getUserInf = async () => {
     let result = await userInfoGetService()
     if (result.code === 200) {
       userInfoStore.$patch({ info: result.data })
+      localStorage.setItem('token', result.data);
+      localStorage.setItem('username', result.value.username)
+      localStorage.setItem('id', result.data.id)
     } else {
       alert('获取信息失败')
     }
