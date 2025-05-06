@@ -144,7 +144,6 @@ const getnotes = async () => {
       throw new Error(result.msg || '请求失败');
     }
   } catch (error) {
-    console.error('获取笔记失败:', error);
     ElMessage.error(`获取失败: ${error.message}`);
   }
 };

@@ -13,7 +13,7 @@ export const useTokenStore = defineStore('token', {
         },
         setPermission(permissions) {
             this.permission = permissions; // 更新 state
-            localStorage.setItem('permissions', permissions.toString()); // 存储为字符串
+            localStorage.setItem('permissions', permissions);
         },
         setUserId(userId) {
             this.userId = userId;

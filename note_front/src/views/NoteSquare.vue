@@ -207,6 +207,10 @@ const updateCategoryEcho = (row) => {
   noteModel.value.id = row.id;
   // 设置 commentModel 的 noteId
   commentModel.value.noteId = row.id;
+  commentModel.value.userId = tokenStore.userId;
+
+  console.log('userId:', tokenStore.userId);
+  console.log('permission:', localStorage.getItem('permission'));
   // 获取评论
   fetchComments(row.id);
 }
@@ -216,7 +220,7 @@ import {noteManageUpdateService} from '@/api/note.js'
 //编辑笔记
 const updateManage = async () => {
   const requestData = {
-    id: noteModel.value.id,
+    id: commentModel.value.noteId,
     title: noteModel.value.title,
     tags: noteModel.value.tags || '',
     content: noteModel.value.content || '',
@@ -246,42 +250,8 @@ const clearData = () => {
   noteModel.value.state = ''
 }
 
-//导入element的ElMessageBox提示框组件
-import { ElMessageBox } from 'element-plus'
-//导入noteManageDeleteService函数
-import {noteManageDeleteService} from '@/api/note.js'
 import router from "@/router";
 import axios from "axios";
-// 删除笔记
-const deleteManage = (row) => {
-  ElMessageBox.confirm(
-      '确认是否将该笔记移入回收站？',
-      '提示',
-      {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-  )
-      .then(async () => {
-        // 用户点击了确认
-        try {
-          await noteManageDeleteService([row.id]);
-          ElMessage.success('笔记已移入回收站');
-          // 重新获取笔记列表
-          await getnotes();
-        } catch (error) {
-          ElMessage.error('移入回收站失败: ' + error.message);
-        }
-      })
-      .catch(() => {
-        // 用户点击了取消
-        ElMessage({
-          type: 'info',
-          message: '取消移入回收站',
-        })
-      })
-}
 // 检查用户是否登录
 if (!tokenStore.token) {
   router.push('/login')
@@ -349,6 +319,7 @@ const fetchComments = async (noteId) => {
 
     const commentsWithUsername = await Promise.all(commentsData.map(async (comment) => {
       try {
+        console.log('comment:', comment);
         const userResponse = await userInfoGetByIdService(comment.userId);
         if (userResponse.code === 200) {
           comment.username = userResponse.data.username;
