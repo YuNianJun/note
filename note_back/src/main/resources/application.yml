@@ -1,5 +1,5 @@
 server:
-  port: 9090
+  port: 9099
 
 spring:
   datasource:
@@ -56,20 +56,8 @@ file:
   maxSize: 100
   avatarMaxSize: 5
 
-#note:
-#  jwt:
-#    # ??jwt??????????
-#    admin-secret-key: note
-#    # ??jwt????
-#    admin-ttl: 7200000
-#    # ?????????????
-#    admin-token-name: token
-#  alioss:
-#    # ?????oss?endpoint
-#    endpoint:
-#    # ?????oss?accessKeyId
-#    access-key-id:
-#    # ?????oss?accessKeySecret
-#    access-key-secret:
-#    # ?????oss?bucket??
-#    bucket-name:
+alioss:
+  endpoint: oss-cn-beijing.aliyuncs.com
+  access-key-id:
+  access-key-secret:
+  bucket-name:

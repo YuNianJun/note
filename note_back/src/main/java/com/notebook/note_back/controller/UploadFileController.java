@@ -23,6 +23,7 @@ public class UploadFileController {
     @PostMapping("uploadImg")
     public ResponseEntity<String> uploadImg(MultipartFile file) {
         String imgUrl = LoadUtil.uploadImg(file, basePath);
+        log.info("上传图片地址：{}", imgUrl);
         return ResponseEntity.ok(imgUrl);
     }
 
@@ -31,6 +32,7 @@ public class UploadFileController {
      */
     @GetMapping("showImg")
     public void showImg(HttpServletResponse response, @RequestParam("imgUrl") String imgUrl) {
+        log.info("回显图片地址：{}", imgUrl);
         LoadUtil.showImg(imgUrl, response);
     }
 

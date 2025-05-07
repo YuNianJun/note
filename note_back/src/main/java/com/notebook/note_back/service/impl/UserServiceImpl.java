@@ -1,6 +1,7 @@
 package com.notebook.note_back.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.notebook.note_back.common.response.ResponseData;
@@ -153,7 +154,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateAvatar(String avatarUrl) {
-
+        Map<String,Object> map = ThreadLocalUtil.get();
+        Integer id = (Integer) map.get("id");
+        UpdateWrapper<User> wrapper = new UpdateWrapper<User>().eq("id",id).set("user_pic",avatarUrl);
+        userMapper.update(wrapper);
     }
 
     @Override
