@@ -215,8 +215,9 @@ const updateManage = async (status) => {
     title: noteModel.value.title,
     tags: noteModel.value.tags || '',
     content: noteModel.value.content || '',
-    status: noteModel.value.status, // 使用设置后的 status
-    categoryId: noteModel.value.categoryId  // 补充 categoryId 字段
+    status: noteModel.value.status,
+    categoryId: noteModel.value.categoryId,
+    coverImg: noteModel.value.coverImg || ''
   };
   console.log('Request Data:', requestData);
   let result = await noteManageUpdateService(requestData);

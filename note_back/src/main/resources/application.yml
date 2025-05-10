@@ -57,7 +57,6 @@ file:
   avatarMaxSize: 5
 
 alioss:
-  endpoint: oss-cn-beijing.aliyuncs.com
-  access-key-id:
-  access-key-secret:
-  bucket-name:
+  endpoint: oss-cn-shanghai.aliyuncs.com
+
+  bucket-name: yu-nian-jun

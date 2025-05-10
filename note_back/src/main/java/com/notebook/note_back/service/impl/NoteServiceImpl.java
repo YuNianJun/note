@@ -74,7 +74,7 @@ public class NoteServiceImpl implements NoteService {
         Page<Note> notePage = new Page<>(vo.getPage(), vo.getSize());
         QueryWrapper<Note> noteWrapper = new QueryWrapper<>();
         User user = userMapper.selectById(userId);
-        if (user.getPermission() <= 2) {
+        if (user.getPermission() <= 0) {
             noteWrapper.eq("user_id", userId);
         }
         noteWrapper.isNotNull("delete_time"); // 查询进入回收站的笔记

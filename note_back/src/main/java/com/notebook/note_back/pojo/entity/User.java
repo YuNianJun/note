@@ -25,6 +25,7 @@ public class User {
 
     private String password;
 
+    private String nickname;
 
     @Email
     private String email;
@@ -34,4 +35,5 @@ public class User {
 
     @TableField(value = "create_time",fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+    private String userPic;
 }

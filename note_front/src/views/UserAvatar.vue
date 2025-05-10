@@ -1,6 +1,6 @@
 <script setup>
 import { Plus, Upload } from '@element-plus/icons-vue'
-import {ref} from 'vue'
+import {ref ,computed} from 'vue'
 import avatar from '@/assets/default.png'
 const uploadRef = ref()
 
@@ -11,7 +11,7 @@ const uploadRef = ref()
 import {useUserInfoStore} from '@/stores/userInfo.js'
 const userInfoStore = useUserInfoStore()
 //用户头像地址
-const imgUrl=ref(userInfoStore.info.userPic || avatar)
+const imgUrl = computed(() => userInfoStore.info.userPic || avatar)
 
 //导入tokenStore
 import {useTokenStore} from '@/stores/token.js'
@@ -20,8 +20,10 @@ const tokenStore = useTokenStore();
 //头像上传成功回调函数
 const uploadSuccess = (result)=>{
   //回显图片 模拟的固定网络图片url地址
-  // imgUrl.value = result.data
-  imgUrl.value = "https://ts1.cn.mm.bing.net/th/id/R-C.4bdc8f7f0e0201905fe400fb5156b7c7?rik=MVFo1SU7cYgFqg&riu=http%3A%2F%2Fwww.spasvo.com%2Fckfinder%2Fuserfiles%2Fimages%2F2020061536450116.jpg&ehk=r7Pp%2FX3wIOhP%2FcuW0ITLAHeD0sZPNatsyfpC3XWOM0s%3D&risl=&pid=ImgRaw&r=0"
+  imgUrl.value = result.data
+  // 同步更新 Pinia 中的 userPic
+  userInfoStore.info.userPic = result.data
+  // imgUrl.value = "https://ts1.cn.mm.bing.net/th/id/R-C.4bdc8f7f0e0201905fe400fb5156b7c7?rik=MVFo1SU7cYgFqg&riu=http%3A%2F%2Fwww.spasvo.com%2Fckfinder%2Fuserfiles%2Fimages%2F2020061536450116.jpg&ehk=r7Pp%2FX3wIOhP%2FcuW0ITLAHeD0sZPNatsyfpC3XWOM0s%3D&risl=&pid=ImgRaw&r=0"
 }
 
 //调用接口，更新头像url
@@ -57,7 +59,7 @@ const updateAvatar = async ()=>{
             :show-file-list="false"
             :auto-upload="true"
             action="/api/upload"
-            name="'file'"
+            :name="file"
             :headers="{'Authorization':tokenStore.token}"
             :on-success="uploadSuccess"
         >

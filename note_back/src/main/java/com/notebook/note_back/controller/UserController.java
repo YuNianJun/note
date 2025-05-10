@@ -105,7 +105,7 @@ public class UserController {
     /**
      * 更新用户头像
      * */
-    @PatchMapping("/updateAvatar")
+    @PostMapping("/updateAvatar")
     public ResponseData updateAvatar(@RequestParam String avatarUrl){ //@RequestParam用于获取参数
         userService.updateAvatar(avatarUrl);
         return ResponseData.success();

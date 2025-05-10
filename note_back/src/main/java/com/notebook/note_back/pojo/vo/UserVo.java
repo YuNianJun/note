@@ -24,4 +24,6 @@ public class UserVo {
 
     @TableField(value = "create_time",fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+    private String userPic;
+    private String nickname;
 }

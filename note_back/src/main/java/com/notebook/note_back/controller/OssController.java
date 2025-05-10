@@ -14,14 +14,14 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("ossUp")
+@RequestMapping("")
 @RequiredArgsConstructor
 public class OssController {
 
     private final AliOssUtil aliOssUtil;
 
     @PostMapping("/upload")
-    public ResponseData upload(MultipartFile file){
+    public ResponseData upload(@RequestParam("file") MultipartFile file ){
         log.info("文件上传：{}",file);
 
         try {

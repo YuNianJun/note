@@ -39,6 +39,8 @@ const userForm = reactive({
   password: '', // 新增时使用
   phone: '',
   status: 1, // 账号状态，默认为正常
+  permission: 0,// 用户权限，默认为 0（普通用户）
+  userPic: null, // 用户头像
 });
 const rules = reactive({
   username: [
@@ -157,6 +159,7 @@ const closeModal = () => {
   userForm.email = '';
   userForm.phone = '';
   userForm.password = '';
+
   userForm.status = 1;
 };
 
@@ -173,11 +176,13 @@ const saveUser = async () => {
       try {
         if (isEditMode.value) {
           // 编辑用户
-          await userInfoUpdateService(userForm.id, {
+          await userInfoUpdateService({
+            id: userForm.id,
             username: userForm.username,
             email: userForm.email,
             phone: userForm.phone,
-            status: userForm.status
+            status: userForm.status,
+            permission: userForm.permission,
           });
           ElMessage.success('用户信息已更新');
         } else {
@@ -188,6 +193,7 @@ const saveUser = async () => {
             phone: userForm.phone,
             password: userForm.password,
             status: userForm.status,
+            permission: userForm.permission,
           });
           ElMessage.success('用户已创建');
         }
@@ -248,7 +254,17 @@ const refreshData = async () => {
         min-width="180"
         fixed
     />
-
+    <el-table-column
+        prop="permission"
+        label="用户权限"
+        min-width="120"
+    >
+      <template #default="{ row }">
+        <el-tag :type="row.permission === 1 ? 'primary' : 'info'">
+          {{ row.permission === 1 ? '管理员' : '普通用户' }}
+        </el-tag>
+      </template>
+    </el-table-column>
     <!-- 邮箱列 -->
     <el-table-column
         prop="email"
@@ -286,12 +302,6 @@ const refreshData = async () => {
         min-width="260"
     >
       <template #default="{ row }">
-        <el-button
-            size="small"
-            @click="showUserCategories(row.id)"
-        >
-          查看分类
-        </el-button>
         <el-button
             size="small"
             :type="row.status === 1 ? 'danger' : 'success'"
@@ -340,6 +350,12 @@ const refreshData = async () => {
     </el-form-item>
     <el-form-item label="密码" prop="password" v-if="!isEditMode">
       <el-input type="password" v-model="userForm.password"></el-input>
+    </el-form-item>
+    <el-form-item label="用户权限">
+      <el-radio-group v-model="userForm.permission">
+        <el-radio :label="0">普通用户</el-radio>
+        <el-radio :label="1">管理员</el-radio>
+      </el-radio-group>
     </el-form-item>
     <el-form-item label="账号状态">
       <el-radio-group v-model="userForm.status">

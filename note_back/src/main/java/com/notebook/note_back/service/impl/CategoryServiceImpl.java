@@ -62,7 +62,7 @@ public class CategoryServiceImpl implements CategoryService {
         Page<Note> notePage = new Page<>(vo.getPage(), vo.getSize());
         User user = userMapper.selectById(userId);
         QueryWrapper<Note> noteWrapper = new QueryWrapper<>();
-        if (user.getPermission() <= 2) {
+        if (user.getPermission() <= 0) {
             noteWrapper.eq("user_id", userId);
         }
         noteWrapper.isNull("delete_time");

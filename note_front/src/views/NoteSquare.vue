@@ -485,7 +485,6 @@ const deleteComment = async (commentId, commentUserId) => {
         <h3>评论区</h3>
         <hr />
         <div v-for="comment in comments" :key="comment.id" class="comment-item">
-          <img :src="comment.avatar" class="comment-avatar" />
           <div class="comment-content">
             <div class="comment-header">
               <span class="comment-username">{{ comment.username }}</span>
